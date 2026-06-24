@@ -14,7 +14,7 @@
       <div>
         <p class="eyebrow">Django + JavaScript Arcade</p>
         <h1 id="game-title">Frogger Complete</h1>
-        <p>Evita autos, cruza el río usando troncos y llega a la zona segura para sumar puntos y subir de nivel.</p>
+        <p>Evita autos, cruza el río usando troncos, ocupa las cinco metas y aprovecha relojes, moscas doradas y escudos para encadenar rachas.</p>
       </div>
       <div class="controls-panel" aria-label="Controles del juego">
         <button id="startButton" type="button">Iniciar / reiniciar</button>
@@ -23,7 +23,7 @@
       </div>
     </section>
     <section class="hud" aria-live="polite">
-      <span>Nivel <strong id="level">1</strong></span><span>Puntaje <strong id="score">0</strong></span><span>Vidas <strong id="lives">3</strong></span><span>Mejor <strong id="bestScore">0</strong></span>
+      <span>Nivel <strong id="level">1</strong></span><span>Puntaje <strong id="score">0</strong></span><span>Vidas <strong id="lives">3</strong></span><span>Tiempo <strong id="timeLeft">45</strong></span><span>Racha <strong id="streak">0</strong></span><span>Mejor <strong id="bestScore">0</strong></span>
     </section>
     <section class="game-card">
       <canvas id="game" width="720" height="720" aria-label="Tablero del juego Frogger"></canvas>
@@ -31,7 +31,7 @@
     </section>
     <section class="instructions">
       <h2>Cómo jugar</h2>
-      <ul><li>Muévete con flechas, WASD o deslizando en pantallas táctiles.</li><li>Los autos quitan una vida. En el río solo sobrevives sobre troncos.</li><li>Cada llegada segura suma 100 puntos + bonificación de nivel.</li></ul>
+      <ul><li>Muévete con flechas, WASD o deslizando en pantallas táctiles.</li><li>Completa las cinco metas iluminadas; repetir una meta ocupada cuesta una vida.</li><li>Los relojes agregan tiempo y las moscas doradas dan puntos más un escudo de un golpe.</li><li>La racha, el tiempo restante y la dificultad multiplican tu puntaje.</li></ul>
     </section>
   </main>
   <script src="{% static 'js/game.js' %}" defer></script>
