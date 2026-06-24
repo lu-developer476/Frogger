@@ -1,7 +1,17 @@
-
 services:
   - type: web
     name: frogger-complete
     env: python
+    plan: free
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: gunicorn frogger.wsgi
+    startCommand: gunicorn frogger.wsgi:application
+    healthCheckPath: /health/
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://*.onrender.com
+      - key: SECRET_KEY
+        generateValue: true
