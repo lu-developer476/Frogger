@@ -1,4 +1,31 @@
-
-const config={easy:1,medium:2,hard:3};
-let level=1,score=0,lives=3;
-console.log("Frogger iniciado");
+(() => {
+  const canvas = document.querySelector('#game');
+  const ctx = canvas.getContext('2d');
+  const ui = { start: document.querySelector('#startButton'), difficulty: document.querySelector('#difficulty'), level: document.querySelector('#level'), score: document.querySelector('#score'), lives: document.querySelector('#lives'), best: document.querySelector('#bestScore'), message: document.querySelector('#message') };
+  const tile = 72;
+  const difficultyMap = { easy: { speed: .75, lives: 5, traffic: .85 }, medium: { speed: 1, lives: 3, traffic: 1 }, hard: { speed: 1.35, lives: 3, traffic: 1.25 } };
+  const lanes = [
+    { row: 7, type: 'car', color: '#f97316', speed: 2.4, size: 1.15, gaps: [0, 4, 8] }, { row: 6, type: 'car', color: '#ef4444', speed: -3.1, size: 1, gaps: [1, 5, 9] }, { row: 5, type: 'car', color: '#facc15', speed: 3.7, size: .9, gaps: [0, 3, 7] },
+    { row: 3, type: 'log', color: '#a16207', speed: -2, size: 1.9, gaps: [0, 5] }, { row: 2, type: 'log', color: '#92400e', speed: 2.5, size: 1.6, gaps: [2, 7] }, { row: 1, type: 'log', color: '#b45309', speed: -3, size: 2.1, gaps: [1, 6] },
+  ];
+  let state; let animationFrame; let touchStart = null;
+  const buildObstacles = (level) => { const d = difficultyMap[ui.difficulty.value]; const boost = 1 + Math.min(level - 1, 12) * .055; return lanes.flatMap((lane) => lane.gaps.map((gap, index) => ({ ...lane, x: (gap * tile + index * 18) % (canvas.width + tile), y: lane.row * tile + 14, width: tile * lane.size * (lane.type === 'car' ? d.traffic : 1), height: lane.type === 'car' ? 42 : 44, speed: lane.speed * d.speed * boost }))); };
+  const resetFrog = () => { state.frog = { col: 4, row: 8, x: 4 * tile + 18, y: 8 * tile + 18, size: 36 }; };
+  const freshState = () => { const d = difficultyMap[ui.difficulty.value]; const next = { running: true, level: 1, score: 0, lives: d.lives, best: Number(localStorage.getItem('froggerBest') || 0), frog: {}, obstacles: [], lastTime: 0, status: 'Cruza hasta la meta verde.' }; state = next; resetFrog(); next.obstacles = buildObstacles(1); return next; };
+  const roundRect = (x, y, width, height, radius) => { ctx.beginPath(); ctx.roundRect(x, y, width, height, radius); };
+  const drawBackground = () => { ['#166534', '#1d4ed8', '#1d4ed8', '#1d4ed8', '#166534', '#374151', '#374151', '#374151', '#166534', '#14532d'].forEach((color, row) => { ctx.fillStyle = color; ctx.fillRect(0, row * tile, canvas.width, tile); }); ctx.fillStyle = '#bbf7d0'; ctx.font = '700 20px system-ui'; ctx.fillText('META', 20, 44); };
+  const drawObstacle = (obstacle) => { ctx.fillStyle = obstacle.color; roundRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height, 12); ctx.fill(); ctx.fillStyle = obstacle.type === 'car' ? '#111827' : 'rgba(255,255,255,.22)'; if (obstacle.type === 'car') { ctx.fillRect(obstacle.x + 12, obstacle.y + 6, 22, 10); ctx.fillRect(obstacle.x + obstacle.width - 34, obstacle.y + 6, 22, 10); } else { ctx.fillRect(obstacle.x + 16, obstacle.y + 8, obstacle.width - 32, 5); } };
+  const drawFrog = () => { const { x, y, size } = state.frog; ctx.fillStyle = '#4ade80'; roundRect(x, y, size, size, 12); ctx.fill(); ctx.fillStyle = '#052e16'; ctx.beginPath(); ctx.arc(x + 11, y + 11, 4, 0, Math.PI * 2); ctx.arc(x + 25, y + 11, 4, 0, Math.PI * 2); ctx.fill(); };
+  const overlap = (a, b) => a.x < b.x + b.width && a.x + a.size > b.x && a.y < b.y + b.height && a.y + a.size > b.y;
+  const moveFrog = (dx, dy) => { if (!state?.running) return; state.frog.col = Math.max(0, Math.min(9, state.frog.col + dx)); state.frog.row = Math.max(0, Math.min(9, state.frog.row + dy)); state.frog.x = state.frog.col * tile + 18; state.frog.y = state.frog.row * tile + 18; };
+  const loseLife = (reason) => { state.lives -= 1; state.status = reason; if (state.lives <= 0) { state.running = false; state.status = `Fin del juego. Puntaje final: ${state.score}.`; } resetFrog(); };
+  const completeLevel = () => { state.score += 100 + state.level * 25 + state.lives * 10; state.level += 1; state.status = '¡Llegaste! Nuevo nivel, más velocidad.'; state.obstacles = buildObstacles(state.level); resetFrog(); };
+  const update = (delta) => { let onLog = false; state.obstacles.forEach((o) => { o.x += o.speed * delta; if (o.speed > 0 && o.x > canvas.width + tile) o.x = -o.width; if (o.speed < 0 && o.x < -o.width - tile) o.x = canvas.width + tile; if (overlap(state.frog, o)) { if (o.type === 'car') loseLife('¡Un auto te golpeó!'); if (o.type === 'log') { onLog = true; state.frog.x += o.speed * delta; state.frog.col = Math.round((state.frog.x - 18) / tile); } } }); if ([1, 2, 3].includes(state.frog.row) && !onLog) loseLife('Caíste al río. Busca troncos.'); if (state.frog.x < 0 || state.frog.x + state.frog.size > canvas.width) loseLife('Te saliste del tablero.'); if (state.frog.row === 0) completeLevel(); state.best = Math.max(state.best, state.score); localStorage.setItem('froggerBest', String(state.best)); };
+  const draw = () => { drawBackground(); state.obstacles.forEach(drawObstacle); drawFrog(); ui.level.textContent = state.level; ui.score.textContent = state.score; ui.lives.textContent = state.lives; ui.best.textContent = state.best; ui.message.textContent = state.running ? state.status : `${state.status} Pulsa iniciar para volver a jugar.`; };
+  const loop = (time) => { if (!state.lastTime) state.lastTime = time; const delta = Math.min((time - state.lastTime) / 16.67, 3); state.lastTime = time; if (state.running) update(delta); draw(); animationFrame = requestAnimationFrame(loop); };
+  const start = () => { cancelAnimationFrame(animationFrame); state = freshState(); loop(0); };
+  document.addEventListener('keydown', (event) => { const keys = { ArrowUp: [0, -1], w: [0, -1], W: [0, -1], ArrowDown: [0, 1], s: [0, 1], S: [0, 1], ArrowLeft: [-1, 0], a: [-1, 0], A: [-1, 0], ArrowRight: [1, 0], d: [1, 0], D: [1, 0] }; if (event.key === 'Enter') start(); if (keys[event.key]) { event.preventDefault(); moveFrog(...keys[event.key]); } });
+  canvas.addEventListener('touchstart', (event) => { touchStart = event.changedTouches[0]; }, { passive: true });
+  canvas.addEventListener('touchend', (event) => { if (!touchStart) return; const end = event.changedTouches[0]; const dx = end.clientX - touchStart.clientX; const dy = end.clientY - touchStart.clientY; if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return; Math.abs(dx) > Math.abs(dy) ? moveFrog(Math.sign(dx), 0) : moveFrog(0, Math.sign(dy)); }, { passive: true });
+  ui.start.addEventListener('click', start); ui.difficulty.addEventListener('change', start); ui.best.textContent = localStorage.getItem('froggerBest') || '0'; drawBackground();
+})();
