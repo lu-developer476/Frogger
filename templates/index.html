@@ -14,7 +14,7 @@
       <div>
         <p class="eyebrow">Django + JavaScript Arcade</p>
         <h1 id="game-title">Frogger Complete</h1>
-        <p>Evita autos, cruza el río usando troncos, ocupa las cinco metas y aprovecha relojes, moscas doradas y escudos para encadenar rachas.</p>
+        <p>Evita autos, motos, taxis, furgonetas, camionetas y camiones; escapa de depredadores reales de las ranas como serpientes, garzas, nutrias, peces grandes y búhos; cruza el río usando troncos y ocupa las cinco metas.</p>
       </div>
       <div class="controls-panel" aria-label="Controles del juego">
         <button id="startButton" type="button">Iniciar / reiniciar</button>
@@ -27,11 +27,17 @@
     </section>
     <section class="game-card">
       <canvas id="game" width="720" height="720" aria-label="Tablero del juego Frogger"></canvas>
-      <div id="message" class="message">Pulsa iniciar o presiona Enter. Usa flechas o WASD.</div>
+      <div class="touch-controls" aria-label="Controles táctiles con flechas">
+        <button type="button" data-move="0,-1" aria-label="Mover arriba">↑</button>
+        <button type="button" data-move="-1,0" aria-label="Mover izquierda">←</button>
+        <button type="button" data-move="0,1" aria-label="Mover abajo">↓</button>
+        <button type="button" data-move="1,0" aria-label="Mover derecha">→</button>
+      </div>
+      <div id="message" class="message">Pulsa iniciar o presiona Enter. Usa flechas, WASD, desliza o toca las flechas.</div>
     </section>
     <section class="instructions">
       <h2>Cómo jugar</h2>
-      <ul><li>Muévete con flechas, WASD o deslizando en pantallas táctiles.</li><li>Completa las cinco metas iluminadas; repetir una meta ocupada cuesta una vida.</li><li>Los relojes agregan tiempo y las moscas doradas dan puntos más un escudo de un golpe.</li><li>La racha, el tiempo restante y la dificultad multiplican tu puntaje.</li></ul>
+      <ul><li>Muévete con flechas, WASD, deslizando en pantallas táctiles o tocando el pad de flechas para tablet y móvil.</li><li>El camino mezcla motos, taxis, furgonetas, camionetas y camiones con distintos tamaños y velocidades.</li><li>También aparecen depredadores reales de ranas: serpientes, garzas, nutrias, peces grandes y búhos.</li><li>Completa las cinco metas iluminadas; repetir una meta ocupada cuesta una vida.</li><li>Los relojes agregan tiempo y las moscas doradas dan puntos más un escudo de un golpe.</li><li>La racha, el tiempo restante y la dificultad multiplican tu puntaje.</li></ul>
     </section>
   </main>
   <script src="{% static 'js/game.js' %}" defer></script>
