@@ -11,6 +11,7 @@
     time: document.querySelector('#timeLeft'),
     streak: document.querySelector('#streak'),
     message: document.querySelector('#message'),
+    mobileControls: document.querySelectorAll('[data-move]'),
   };
 
   const tile = 72;
@@ -26,12 +27,19 @@
     hard: { speed: 1.35, lives: 3, traffic: 1.25, time: 38, bonus: 1.5 },
   };
   const lanes = [
-    { row: 7, type: 'car', color: '#f97316', speed: 2.4, size: 1.15, gaps: [0, 4, 8] },
-    { row: 6, type: 'car', color: '#ef4444', speed: -3.1, size: 1, gaps: [1, 5, 9] },
-    { row: 5, type: 'car', color: '#facc15', speed: 3.7, size: 0.9, gaps: [0, 3, 7] },
-    { row: 3, type: 'log', color: '#a16207', speed: -2, size: 1.9, gaps: [0, 5] },
-    { row: 2, type: 'log', color: '#92400e', speed: 2.5, size: 1.6, gaps: [2, 7] },
-    { row: 1, type: 'log', color: '#b45309', speed: -3, size: 2.1, gaps: [1, 6] },
+    { row: 7, type: 'vehicle', kind: 'taxi', label: 'TAXI', color: '#facc15', speed: 2.4, size: 1.1, gaps: [0, 4, 8] },
+    { row: 7, type: 'vehicle', kind: 'motorcycle', label: 'MOTO', color: '#38bdf8', speed: 3.3, size: 0.62, gaps: [2, 6] },
+    { row: 6, type: 'vehicle', kind: 'truck', label: 'CAMIÓN', color: '#ef4444', speed: -2.55, size: 1.7, gaps: [1, 6] },
+    { row: 6, type: 'predator', kind: 'snake', label: 'SERPIENTE', color: '#84cc16', speed: -3.15, size: 0.92, gaps: [4, 9] },
+    { row: 5, type: 'vehicle', kind: 'van', label: 'FURGÓN', color: '#f97316', speed: 2.95, size: 1.35, gaps: [0, 5] },
+    { row: 5, type: 'vehicle', kind: 'pickup', label: 'PICKUP', color: '#a78bfa', speed: 3.45, size: 1.05, gaps: [3, 8] },
+    { row: 4, type: 'predator', kind: 'heron', label: 'GARZA', color: '#e5e7eb', speed: -2.25, size: 0.92, gaps: [0, 4, 8] },
+    { row: 3, type: 'log', kind: 'log', color: '#a16207', speed: -2, size: 1.9, gaps: [0, 5] },
+    { row: 3, type: 'predator', kind: 'otter', label: 'NUTRIA', color: '#78350f', speed: -2.75, size: 0.88, gaps: [3, 8] },
+    { row: 2, type: 'log', kind: 'log', color: '#92400e', speed: 2.5, size: 1.6, gaps: [2, 7] },
+    { row: 2, type: 'predator', kind: 'fish', label: 'PEZ', color: '#fb7185', speed: 3.05, size: 0.82, gaps: [0, 5] },
+    { row: 1, type: 'log', kind: 'log', color: '#b45309', speed: -3, size: 2.1, gaps: [1, 6] },
+    { row: 1, type: 'predator', kind: 'owl', label: 'BÚHO', color: '#c084fc', speed: -3.35, size: 0.78, gaps: [4, 9] },
   ];
   const goalColumns = [1, 3, 5, 7, 9];
   let state;
@@ -61,8 +69,8 @@
       ...lane,
       x: (gap * tile + index * 18) % (canvas.width + tile),
       y: lane.row * tile + 14,
-      width: tile * lane.size * (lane.type === 'car' ? d.traffic : 1),
-      height: lane.type === 'car' ? 42 : 44,
+      width: tile * lane.size * (lane.type === 'vehicle' ? d.traffic : 1),
+      height: lane.type === 'log' ? 44 : lane.type === 'predator' ? 38 : 42,
       speed: lane.speed * d.speed * boost,
     })));
   };
@@ -102,12 +110,14 @@
   };
 
   const drawBackground = () => {
-    ['#166534', '#1d4ed8', '#1d4ed8', '#1d4ed8', '#166534', '#374151', '#374151', '#374151', '#166534', '#14532d'].forEach((color, row) => {
+    ['#166534', '#1d4ed8', '#1d4ed8', '#1d4ed8', '#365314', '#374151', '#374151', '#374151', '#166534', '#14532d'].forEach((color, row) => {
       ctx.fillStyle = color;
       ctx.fillRect(0, row * tile, canvas.width, tile);
     });
     ctx.fillStyle = 'rgba(255,255,255,.18)';
     for (let x = 0; x < canvas.width; x += tile) ctx.fillRect(x + 34, tile * 5, 4, tile * 3);
+    ctx.fillStyle = 'rgba(236,253,245,.18)';
+    for (let x = 0; x < canvas.width; x += tile) ctx.fillRect(x + 10, tile * 4 + 12, 24, 8);
     goalColumns.forEach((col) => {
       const occupied = state?.goals?.has(col);
       ctx.fillStyle = occupied ? '#4ade80' : '#bbf7d0';
@@ -121,14 +131,35 @@
 
   const drawObstacle = (obstacle) => {
     ctx.fillStyle = obstacle.color;
-    roundRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height, 12);
+    roundRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height, obstacle.type === 'predator' ? 20 : 12);
     ctx.fill();
-    ctx.fillStyle = obstacle.type === 'car' ? '#111827' : 'rgba(255,255,255,.22)';
-    if (obstacle.type === 'car') {
-      ctx.fillRect(obstacle.x + 12, obstacle.y + 6, 22, 10);
-      ctx.fillRect(obstacle.x + obstacle.width - 34, obstacle.y + 6, 22, 10);
+    ctx.fillStyle = obstacle.type === 'log' ? 'rgba(255,255,255,.22)' : '#111827';
+    if (obstacle.type === 'vehicle') {
+      ctx.fillRect(obstacle.x + 10, obstacle.y + 7, Math.min(24, obstacle.width / 3), 10);
+      ctx.fillRect(obstacle.x + obstacle.width - 34, obstacle.y + 7, 24, 10);
+      ctx.fillStyle = '#020617';
+      ctx.beginPath();
+      ctx.arc(obstacle.x + 16, obstacle.y + obstacle.height + 2, 6, 0, Math.PI * 2);
+      ctx.arc(obstacle.x + obstacle.width - 16, obstacle.y + obstacle.height + 2, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '700 10px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText(obstacle.label, obstacle.x + obstacle.width / 2, obstacle.y + 29);
+      ctx.textAlign = 'start';
+    } else if (obstacle.type === 'predator') {
+      ctx.fillStyle = '#020617';
+      ctx.beginPath();
+      ctx.arc(obstacle.x + obstacle.width * 0.72, obstacle.y + 12, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.8)';
+      ctx.font = '700 11px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText(obstacle.kind === 'snake' ? '🐍' : obstacle.kind === 'heron' ? '🪽' : obstacle.kind === 'otter' ? '🦦' : obstacle.kind === 'fish' ? '🐟' : '🦉', obstacle.x + obstacle.width / 2, obstacle.y + 26);
+      ctx.textAlign = 'start';
     } else {
       ctx.fillRect(obstacle.x + 16, obstacle.y + 8, obstacle.width - 32, 5);
+      ctx.fillRect(obstacle.x + 28, obstacle.y + 25, obstacle.width - 56, 4);
     }
   };
 
@@ -157,13 +188,27 @@
       ctx.stroke();
     }
     ctx.fillStyle = '#4ade80';
-    roundRect(x, y, size, size, 12);
+    ctx.beginPath();
+    ctx.ellipse(x + size / 2, y + size / 2 + 2, size / 2, size / 2.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#86efac';
+    ctx.beginPath();
+    ctx.arc(x + 9, y + 7, 8, 0, Math.PI * 2);
+    ctx.arc(x + 27, y + 7, 8, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = '#052e16';
     ctx.beginPath();
-    ctx.arc(x + 11, y + 11, 4, 0, Math.PI * 2);
-    ctx.arc(x + 25, y + 11, 4, 0, Math.PI * 2);
+    ctx.arc(x + 9, y + 7, 3.5, 0, Math.PI * 2);
+    ctx.arc(x + 27, y + 7, 3.5, 0, Math.PI * 2);
     ctx.fill();
+    ctx.strokeStyle = '#166534';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(x + 4, y + 28);
+    ctx.lineTo(x - 3, y + 35);
+    ctx.moveTo(x + 32, y + 28);
+    ctx.lineTo(x + 39, y + 35);
+    ctx.stroke();
   };
 
   const drawParticles = () => {
@@ -258,7 +303,8 @@
       if (o.speed > 0 && o.x > canvas.width + tile) o.x = -o.width;
       if (o.speed < 0 && o.x < -o.width - tile) o.x = canvas.width + tile;
       if (overlap(state.frog, o)) {
-        if (o.type === 'car') loseLife('¡Un auto te golpeó!');
+        if (o.type === 'vehicle') loseLife(`¡Te atropelló un/a ${o.label.toLowerCase()}!`);
+        if (o.type === 'predator') loseLife(`¡Un depredador natural (${o.label.toLowerCase()}) atrapó a la rana!`);
         if (o.type === 'log') {
           onLog = true;
           state.frog.x += o.speed * delta;
@@ -316,6 +362,10 @@
       moveFrog(...keys[event.key]);
     }
   });
+  ui.mobileControls.forEach((button) => button.addEventListener('click', () => {
+    const [dx, dy] = button.dataset.move.split(',').map(Number);
+    moveFrog(dx, dy);
+  }));
   canvas.addEventListener('touchstart', (event) => { touchStart = event.changedTouches[0]; }, { passive: true });
   canvas.addEventListener('touchend', (event) => {
     if (!touchStart) return;
