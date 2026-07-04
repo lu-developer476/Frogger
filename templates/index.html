@@ -10,18 +10,11 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-  <main class="app-shell">
-    <section class="hero" aria-labelledby="game-title">
-      <div>
-        <p class="eyebrow">Tu próxima misión anfibia</p>
-        <h1 id="game-title">Frogger Rally: salto al caos</h1>
-        <p>Toma el control, calcula cada salto y decide cuándo avanzar: esquiva el tráfico, lee el movimiento de los depredadores, aprovecha los troncos del río y conquista las cinco metas antes de que el tiempo se agote.</p>
-      </div>
-      <div class="controls-panel" aria-label="Controles del juego">
-        <button id="startButton" type="button">Iniciar / reiniciar</button>
-        <label for="difficulty">Dificultad</label>
-        <select id="difficulty"><option value="easy">Fácil</option><option value="medium" selected>Media</option><option value="hard">Difícil</option></select>
-      </div>
+  <main class="app-shell" aria-label="Frogger Rally">
+    <section class="top-bar" aria-label="Opciones del juego">
+      <button id="startButton" type="button">Iniciar / reiniciar</button>
+      <label for="difficulty">Dificultad</label>
+      <select id="difficulty"><option value="easy">Fácil</option><option value="medium" selected>Media</option><option value="hard">Difícil</option></select>
     </section>
     <section class="hud" aria-live="polite">
       <span>Nivel <strong id="level">1</strong></span><span>Puntaje <strong id="score">0</strong></span><span>Vidas <strong id="lives">3</strong></span><span>Tiempo <strong id="timeLeft">45</strong></span><span>Racha <strong id="streak">0</strong></span><span>Mejor <strong id="bestScore">0</strong></span>
@@ -34,11 +27,7 @@
         <button type="button" data-move="0,1" aria-label="Mover abajo">↓</button>
         <button type="button" data-move="1,0" aria-label="Mover derecha">→</button>
       </div>
-      <div id="message" class="message">Pulsa iniciar o presiona Enter. Usa flechas, WASD, desliza o toca las flechas.</div>
-    </section>
-    <section class="instructions">
-      <h2>Cómo jugar</h2>
-      <ul><li>Muévete con flechas, WASD, deslizando en pantallas táctiles o tocando el pad de flechas para tablet y móvil.</li><li>El camino mezcla motos, taxis, furgonetas, camionetas y camiones con distintos tamaños y velocidades.</li><li>También aparecen depredadores reales de ranas: serpientes, garzas, nutrias, peces grandes y búhos.</li><li>Completa las cinco metas iluminadas; repetir una meta ocupada cuesta una vida.</li><li>Los relojes agregan tiempo y las moscas doradas dan puntos más un escudo de un golpe.</li><li>La racha, el tiempo restante y la dificultad multiplican tu puntaje.</li></ul>
+      <div id="message" class="message">Enter para iniciar. Flechas, WASD, swipe o botones.</div>
     </section>
   </main>
   <script src="{% static 'js/game.js' %}" defer></script>
