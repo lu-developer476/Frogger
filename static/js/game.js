@@ -20,6 +20,7 @@
     frogSize: document.querySelector('#frogSize'),
     frogPreview: document.querySelector('#frogPreview'),
     frogSpeciesInfo: document.querySelector('#frogSpeciesInfo'),
+    scenario: document.querySelector('#scenario'),
   };
 
   const tile = 72;
@@ -42,6 +43,21 @@
     glass: { name: 'Rana de cristal', body: 'rgba(134,239,172,.82)', belly: 'rgba(240,253,244,.72)', eye: '#d9f99d', pupil: '#14532d', spot: '#22c55e', pattern: 'translucent', info: 'Verde translúcido y vientre pálido como las ranas de cristal.' },
   };
   const frogSizeMap = { small: 32, medium: 38, large: 44 };
+
+  const scenarioPalettes = {
+    wetland: { rows: ['#8fbc72', '#bfe3e2', '#bfe3e2', '#bfe3e2', '#d9e9c6', '#c7b39a', '#c7b39a', '#c7b39a', '#a8cf87', '#6f9a58'], waterStripe: 'rgba(255,255,255,.26)', roadStripe: 'rgba(86,61,42,.16)', goal: '#bbf7d0', occupied: '#4ade80', message: 'Cruza el humedal hacia una hoja iluminada. ¡Reuní a las cinco ranas!' },
+    nightMarsh: { rows: ['#1e3a5f', '#0f3b57', '#0f3b57', '#0f3b57', '#1f4d3a', '#2d3748', '#2d3748', '#2d3748', '#315f45', '#123524'], waterStripe: 'rgba(191,219,254,.24)', roadStripe: 'rgba(226,232,240,.14)', goal: '#67e8f9', occupied: '#22d3ee', message: 'Noche cerrada en el pantano: seguí el brillo de las hojas seguras.' },
+    jungleRain: { rows: ['#166534', '#38bdf8', '#38bdf8', '#38bdf8', '#22c55e', '#57534e', '#57534e', '#57534e', '#4ade80', '#14532d'], waterStripe: 'rgba(240,253,250,.34)', roadStripe: 'rgba(250,204,21,.16)', goal: '#86efac', occupied: '#16a34a', message: 'Selva lluviosa: avanzá entre corrientes rápidas y caminos mojados.' },
+    autumnCreek: { rows: ['#a16207', '#93c5fd', '#93c5fd', '#93c5fd', '#d97706', '#92400e', '#92400e', '#92400e', '#ca8a04', '#78350f'], waterStripe: 'rgba(255,247,237,.36)', roadStripe: 'rgba(253,186,116,.2)', goal: '#fde68a', occupied: '#f59e0b', message: 'Arroyo otoñal: saltá entre hojas doradas y troncos resbaladizos.' },
+  };
+  const scenarioConfig = () => scenarioPalettes[ui.scenario?.value] || scenarioPalettes.wetland;
+  const predatorProfiles = {
+    snake: { ...frogProfiles.poisonDart, body: '#84cc16', belly: '#ecfccb', spot: '#365314', pattern: 'stripe' },
+    heron: { ...frogProfiles.glass, body: '#e5e7eb', belly: '#f8fafc', eye: '#f59e0b', spot: '#94a3b8', pattern: 'flanks' },
+    otter: { ...frogProfiles.tomato, body: '#78350f', belly: '#d97706', eye: '#fef3c7', spot: '#451a03', pattern: 'soft' },
+    fish: { ...frogProfiles.redEye, body: '#fb7185', belly: '#fecdd3', eye: '#bfdbfe', spot: '#be123c', pattern: 'spots' },
+    owl: { ...frogProfiles.greenTree, body: '#c084fc', belly: '#f3e8ff', eye: '#fde047', spot: '#6b21a8', pattern: 'flanks' },
+  };
   const frogConfig = () => ({
     ...(frogProfiles[ui.frogSpecies?.value] || frogProfiles.greenTree),
     size: frogSizeMap[ui.frogSize?.value] || frogSizeMap.medium,
@@ -116,7 +132,7 @@
       bonus: spawnBonus(),
       particles: [],
       lastTime: 0,
-      status: 'Cruza el humedal hacia una hoja iluminada. ¡Reuní a las cinco ranas!'
+      status: scenarioConfig().message
     };
     state = next;
     resetFrog();
@@ -131,10 +147,11 @@
   };
 
   const drawBackground = () => {
-    ['#8fbc72', '#bfe3e2', '#bfe3e2', '#bfe3e2', '#d9e9c6', '#c7b39a', '#c7b39a', '#c7b39a', '#a8cf87', '#6f9a58'].forEach((color, row) => {
+    const scenario = scenarioConfig();
+    scenario.rows.forEach((color, row) => {
       ctx.fillStyle = color;
       ctx.fillRect(0, row * tile, canvas.width, tile);
-      ctx.fillStyle = row === 5 || row === 6 || row === 7 ? 'rgba(86,61,42,.16)' : 'rgba(255,255,255,.26)';
+      ctx.fillStyle = row === 5 || row === 6 || row === 7 ? scenario.roadStripe : scenario.waterStripe;
       for (let x = row % 2 ? 0 : 36; x < canvas.width; x += tile) ctx.fillRect(x, row * tile + 8, 34, 4);
     });
     ctx.fillStyle = 'rgba(255,254,250,.58)';
@@ -151,7 +168,7 @@
     goalColumns.forEach((col) => {
       const occupied = state?.goals?.has(col);
       const x = col * tile + 10;
-      ctx.fillStyle = occupied ? '#4ade80' : '#bbf7d0';
+      ctx.fillStyle = occupied ? scenario.occupied : scenario.goal;
       roundRect(x, 10, 52, 52, 18);
       ctx.fill();
       ctx.fillStyle = occupied ? '#052e16' : '#14532d';
@@ -183,14 +200,12 @@
       ctx.fillText(obstacle.label, obstacle.x + obstacle.width / 2, obstacle.y + 29);
       ctx.textAlign = 'start';
     } else if (obstacle.type === 'predator') {
-      ctx.fillStyle = '#020617';
-      ctx.beginPath();
-      ctx.arc(obstacle.x + obstacle.width * 0.72, obstacle.y + 12, 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,.8)';
-      ctx.font = '700 11px system-ui';
+      const predatorSize = Math.min(34, obstacle.height + 2);
+      renderFrog(ctx, obstacle.x + obstacle.width / 2 - predatorSize / 2, obstacle.y + 1, predatorSize, 0, predatorProfiles[obstacle.kind] || frogProfiles.greenTree);
+      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      ctx.font = '700 9px system-ui';
       ctx.textAlign = 'center';
-      ctx.fillText(obstacle.kind === 'snake' ? '🐍' : obstacle.kind === 'heron' ? '🪽' : obstacle.kind === 'otter' ? '🦦' : obstacle.kind === 'fish' ? '🐟' : '🦉', obstacle.x + obstacle.width / 2, obstacle.y + 26);
+      ctx.fillText(obstacle.label, obstacle.x + obstacle.width / 2, obstacle.y + obstacle.height - 2);
       ctx.textAlign = 'start';
     } else {
       ctx.fillRect(obstacle.x + 16, obstacle.y + 8, obstacle.width - 32, 5);
@@ -462,6 +477,7 @@
   ui.difficulty?.addEventListener('change', drawFrogPreview);
   ui.frogSpecies?.addEventListener('change', drawFrogPreview);
   ui.frogSize?.addEventListener('change', drawFrogPreview);
+  ui.scenario?.addEventListener('change', () => { if (state) state.status = scenarioConfig().message; draw(); });
   ui.guide?.addEventListener('click', () => {
     if (typeof ui.guideDialog?.showModal === 'function') ui.guideDialog.showModal();
   });

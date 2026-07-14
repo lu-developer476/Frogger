@@ -18,10 +18,7 @@
         <button id="startButton" type="button">Jugar ahora</button>
       </div>
     </section>
-    <section class="hero" aria-label="Presentación animalista de Frogger Rally">
-      <div class="hero-copy">
-        <h1>Arcade ágil y competitivo.</h1>
-      </div>
+    <section class="hero hero-compact" aria-label="Presentación animalista de Frogger Rally">
       <div class="hero-pond" aria-hidden="true"><span class="sun"></span><span class="frog-mascot">🐸</span><span class="score-chip">🪰 +100</span><span class="combo-chip">Combo x4</span></div>
     </section>
     <section id="ranking" class="hud" aria-live="polite">
@@ -42,11 +39,12 @@
     <form method="dialog">
       <button class="dialog-close" value="close" aria-label="Cerrar configuración">×</button>
       <p class="eyebrow">Prepará tu salto</p>
-      <h2 id="setupTitle">Elegí dificultad y especie</h2>
+      <h2 id="setupTitle">Elegí dificultad, especie y escenario</h2>
       <div class="setup-grid">
         <label>Dificultad<select id="difficulty" aria-label="Dificultad"><option value="easy">Fácil</option><option value="medium" selected>Media</option><option value="hard">Difícil</option></select></label>
         <label>Especie<select id="frogSpecies" aria-label="Especie de rana"><option value="greenTree" selected>Rana verde arbórea</option><option value="redEye">Rana de ojos rojos</option><option value="poisonDart">Rana dardo venenosa</option><option value="tomato">Rana tomate</option><option value="glass">Rana de cristal</option></select></label>
         <label>Tamaño<select id="frogSize" aria-label="Tamaño de la rana"><option value="small">Pequeña</option><option value="medium" selected>Mediana</option><option value="large">Grande</option></select></label>
+        <label>Escenario<select id="scenario" aria-label="Escenario"><option value="wetland" selected>Humedal clásico</option><option value="nightMarsh">Pantano nocturno</option><option value="jungleRain">Selva lluviosa</option><option value="autumnCreek">Arroyo otoñal</option></select></label>
       </div>
       <div class="frog-preview-card" aria-hidden="true"><canvas id="frogPreview" width="144" height="144"></canvas><p id="frogSpeciesInfo">Verde suave, vientre crema y ojos dorados.</p></div>
       <button id="confirmStart" class="primary-action" value="start" type="submit">Comenzar partida</button>
