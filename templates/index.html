@@ -4,14 +4,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Frogger Rally: aventura arcade web con reflejos, estrategia y acción en cada cruce.">
-  <title>Frogger Rally</title>
+  <meta name="description" content="Frogger Rally: aventura arcade con estética de quest, reflejos, estrategia y acción en cada cruce.">
+  <title>Frogger Rally · Quest</title>
   <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-  <main class="app-shell" aria-label="Frogger Rally">
+  <main class="app-shell" aria-label="Frogger Rally con estética de quest">
     <section class="top-bar" aria-label="Opciones del juego">
+      <div class="brand-lockup" aria-label="Identidad del juego"><span class="brand-icon">🐸</span><span><strong>Frogger Rally</strong><small>Quest style</small></span></div>
       <button id="startButton" type="button">Iniciar / reiniciar</button>
       <label for="difficulty">Dificultad</label>
       <select id="difficulty"><option value="easy">Fácil</option><option value="medium" selected>Media</option><option value="hard">Difícil</option></select>
@@ -20,14 +21,14 @@
       <span>Nivel <strong id="level">1</strong></span><span>Puntaje <strong id="score">0</strong></span><span>Vidas <strong id="lives">3</strong></span><span>Tiempo <strong id="timeLeft">45</strong></span><span>Racha <strong id="streak">0</strong></span><span>Mejor <strong id="bestScore">0</strong></span>
     </section>
     <section class="game-card">
-      <canvas id="game" width="720" height="720" aria-label="Tablero del juego Frogger"></canvas>
+      <canvas id="game" width="720" height="720" aria-label="Tablero del juego Frogger Rally con estética de quest"></canvas>
       <div class="touch-controls" aria-label="Controles táctiles con flechas">
         <button type="button" data-move="0,-1" aria-label="Mover arriba">↑</button>
         <button type="button" data-move="-1,0" aria-label="Mover izquierda">←</button>
         <button type="button" data-move="0,1" aria-label="Mover abajo">↓</button>
         <button type="button" data-move="1,0" aria-label="Mover derecha">→</button>
       </div>
-      <div id="message" class="message">Enter para iniciar. Flechas, WASD, swipe o botones.</div>
+      <div id="message" class="message">Enter para iniciar. Guía a la rana con flechas, WASD, swipe o botones.</div>
     </section>
   </main>
   <script src="{% static 'js/game.js' %}" defer></script>

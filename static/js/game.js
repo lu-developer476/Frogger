@@ -113,19 +113,33 @@
     ['#166534', '#1d4ed8', '#1d4ed8', '#1d4ed8', '#365314', '#374151', '#374151', '#374151', '#166534', '#14532d'].forEach((color, row) => {
       ctx.fillStyle = color;
       ctx.fillRect(0, row * tile, canvas.width, tile);
+      ctx.fillStyle = row === 5 || row === 6 || row === 7 ? 'rgba(15,23,42,.28)' : 'rgba(255,255,255,.04)';
+      for (let x = row % 2 ? 0 : 36; x < canvas.width; x += tile) ctx.fillRect(x, row * tile + 8, 34, 4);
     });
     ctx.fillStyle = 'rgba(255,255,255,.18)';
     for (let x = 0; x < canvas.width; x += tile) ctx.fillRect(x + 34, tile * 5, 4, tile * 3);
     ctx.fillStyle = 'rgba(236,253,245,.18)';
-    for (let x = 0; x < canvas.width; x += tile) ctx.fillRect(x + 10, tile * 4 + 12, 24, 8);
+    for (let x = 0; x < canvas.width; x += tile) {
+      ctx.fillRect(x + 10, tile * 4 + 12, 24, 8);
+      ctx.fillStyle = 'rgba(132,204,22,.65)';
+      ctx.beginPath();
+      ctx.arc(x + 60, tile * 4 + 17, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(236,253,245,.18)';
+    }
     goalColumns.forEach((col) => {
       const occupied = state?.goals?.has(col);
+      const x = col * tile + 10;
       ctx.fillStyle = occupied ? '#4ade80' : '#bbf7d0';
-      roundRect(col * tile + 10, 10, 52, 52, 18);
+      roundRect(x, 10, 52, 52, 18);
       ctx.fill();
       ctx.fillStyle = occupied ? '#052e16' : '#14532d';
-      ctx.font = '700 24px system-ui';
-      ctx.fillText(occupied ? '✓' : '●', col * tile + 27, 44);
+      ctx.beginPath();
+      ctx.ellipse(x + 26, 42, 19, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = occupied ? '#dcfce7' : '#f97316';
+      ctx.font = '700 22px system-ui';
+      ctx.fillText(occupied ? '✓' : '●', x + 24, 35);
     });
   };
 
@@ -312,7 +326,7 @@
         }
       }
     });
-    if ([1, 2, 3].includes(state.frog.row) && !onLog) loseLife('Caíste al río. Busca troncos.');
+    if ([1, 2, 3].includes(state.frog.row) && !onLog) loseLife('Caíste al arroyo. Busca troncos.');
     if (state.frog.x < 0 || state.frog.x + state.frog.size > canvas.width) loseLife('Te saliste del tablero.');
     collectBonus();
     if (state.bonus && !state.bonus.collected) {
