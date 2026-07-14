@@ -95,7 +95,7 @@
       bonus: spawnBonus(),
       particles: [],
       lastTime: 0,
-      status: 'Cruza hacia una meta iluminada. ¡Completa las cinco ranas!',
+      status: 'Salta hacia una madriguera iluminada. ¡Completa las cinco paradas del Bunny Quest!',
     };
     state = next;
     resetFrog();
@@ -113,19 +113,35 @@
     ['#166534', '#1d4ed8', '#1d4ed8', '#1d4ed8', '#365314', '#374151', '#374151', '#374151', '#166534', '#14532d'].forEach((color, row) => {
       ctx.fillStyle = color;
       ctx.fillRect(0, row * tile, canvas.width, tile);
+      ctx.fillStyle = row === 5 || row === 6 || row === 7 ? 'rgba(15,23,42,.28)' : 'rgba(255,255,255,.04)';
+      for (let x = row % 2 ? 0 : 36; x < canvas.width; x += tile) ctx.fillRect(x, row * tile + 8, 34, 4);
     });
     ctx.fillStyle = 'rgba(255,255,255,.18)';
     for (let x = 0; x < canvas.width; x += tile) ctx.fillRect(x + 34, tile * 5, 4, tile * 3);
     ctx.fillStyle = 'rgba(236,253,245,.18)';
-    for (let x = 0; x < canvas.width; x += tile) ctx.fillRect(x + 10, tile * 4 + 12, 24, 8);
+    for (let x = 0; x < canvas.width; x += tile) {
+      ctx.fillRect(x + 10, tile * 4 + 12, 24, 8);
+      ctx.fillStyle = 'rgba(249,115,22,.8)';
+      ctx.beginPath();
+      ctx.moveTo(x + 52, tile * 4 + 17);
+      ctx.lineTo(x + 66, tile * 4 + 10);
+      ctx.lineTo(x + 66, tile * 4 + 24);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(236,253,245,.18)';
+    }
     goalColumns.forEach((col) => {
       const occupied = state?.goals?.has(col);
+      const x = col * tile + 10;
       ctx.fillStyle = occupied ? '#4ade80' : '#bbf7d0';
-      roundRect(col * tile + 10, 10, 52, 52, 18);
+      roundRect(x, 10, 52, 52, 18);
       ctx.fill();
       ctx.fillStyle = occupied ? '#052e16' : '#14532d';
-      ctx.font = '700 24px system-ui';
-      ctx.fillText(occupied ? '✓' : '●', col * tile + 27, 44);
+      ctx.beginPath();
+      ctx.ellipse(x + 26, 42, 19, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = occupied ? '#dcfce7' : '#f97316';
+      ctx.font = '700 22px system-ui';
+      ctx.fillText(occupied ? '✓' : '🥕', x + 17, 35);
     });
   };
 
@@ -174,41 +190,49 @@
     ctx.fillStyle = '#0f172a';
     ctx.font = '700 18px system-ui';
     ctx.textAlign = 'center';
-    ctx.fillText(state.bonus.type === 'clock' ? '+T' : '+', x, y + 6);
+    ctx.fillText(state.bonus.type === 'clock' ? '+T' : '🥕', x, y + 6);
     ctx.textAlign = 'start';
   };
 
   const drawFrog = () => {
     const { x, y, size, shield } = state.frog;
+    const cx = x + size / 2;
+    const cy = y + size / 2;
     if (shield > 0) {
       ctx.strokeStyle = 'rgba(147,197,253,.9)';
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.arc(x + size / 2, y + size / 2, 27, 0, Math.PI * 2);
+      ctx.arc(cx, cy, 29, 0, Math.PI * 2);
       ctx.stroke();
     }
-    ctx.fillStyle = '#4ade80';
+    ctx.fillStyle = '#d9f99d';
     ctx.beginPath();
-    ctx.ellipse(x + size / 2, y + size / 2 + 2, size / 2, size / 2.2, 0, 0, Math.PI * 2);
+    ctx.ellipse(x + 11, y + 1, 7, 18, -0.35, 0, Math.PI * 2);
+    ctx.ellipse(x + 25, y + 1, 7, 18, 0.35, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = '#86efac';
     ctx.beginPath();
-    ctx.arc(x + 9, y + 7, 8, 0, Math.PI * 2);
-    ctx.arc(x + 27, y + 7, 8, 0, Math.PI * 2);
+    ctx.ellipse(cx, cy + 4, size / 2, size / 2.25, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#ecfccb';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + 8, 9, 7, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = '#052e16';
     ctx.beginPath();
-    ctx.arc(x + 9, y + 7, 3.5, 0, Math.PI * 2);
-    ctx.arc(x + 27, y + 7, 3.5, 0, Math.PI * 2);
+    ctx.arc(x + 11, y + 15, 3, 0, Math.PI * 2);
+    ctx.arc(x + 25, y + 15, 3, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#166534';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(x + 4, y + 28);
-    ctx.lineTo(x - 3, y + 35);
-    ctx.moveTo(x + 32, y + 28);
-    ctx.lineTo(x + 39, y + 35);
+    ctx.moveTo(x + 13, y + 26);
+    ctx.quadraticCurveTo(cx, y + 31, x + 23, y + 26);
     ctx.stroke();
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.arc(x + 31, y + 31, 5, 0, Math.PI * 2);
+    ctx.fill();
   };
 
   const drawParticles = () => {
@@ -258,20 +282,20 @@
     state.timeLeft = difficulty().time + Math.min(state.level * 2, 14);
     state.obstacles = buildObstacles(state.level);
     state.bonus = spawnBonus();
-    state.status = '¡Tablero completo! La ciudad acelera y el bonus sube.';
+    state.status = '¡Ruta Bunny Quest completa! La ciudad acelera y el bonus sube.';
   };
 
   const completeGoal = () => {
     const nearestGoal = goalColumns.reduce((best, col) => (Math.abs(col - state.frog.col) < Math.abs(best - state.frog.col) ? col : best), goalColumns[0]);
     if (Math.abs(nearestGoal - state.frog.col) > 1 || state.goals.has(nearestGoal)) {
-      loseLife('Esa meta no estaba libre. Apunta a una zona iluminada.');
+      loseLife('Esa madriguera no estaba libre. Apunta a una zona iluminada.');
       return;
     }
     state.goals.add(nearestGoal);
     state.streak += 1;
     state.score += Math.round((100 + state.level * 25 + state.timeLeft * 3 + state.streak * 20) * difficulty().bonus);
     addParticles(nearestGoal * tile + 36, 36, '#4ade80', 22);
-    state.status = `¡Meta asegurada! Racha x${state.streak}.`;
+    state.status = `¡Madriguera asegurada! Racha x${state.streak}.`;
     resetFrog();
     if (state.goals.size === goalColumns.length) completeBoard();
   };
@@ -285,7 +309,7 @@
     } else {
       state.score += 150;
       state.frog.shield = 1;
-      state.status = 'Mosca dorada: +150 y escudo contra el próximo golpe.';
+      state.status = 'Zanahoria dorada: +150 y escudo contra el próximo golpe.';
     }
     addParticles(state.frog.x + 18, state.frog.y + 18, '#fde68a', 18);
   };
@@ -304,7 +328,7 @@
       if (o.speed < 0 && o.x < -o.width - tile) o.x = canvas.width + tile;
       if (overlap(state.frog, o)) {
         if (o.type === 'vehicle') loseLife(`¡Te atropelló un/a ${o.label.toLowerCase()}!`);
-        if (o.type === 'predator') loseLife(`¡Un depredador natural (${o.label.toLowerCase()}) atrapó a la rana!`);
+        if (o.type === 'predator') loseLife(`¡Un depredador natural (${o.label.toLowerCase()}) atrapó al conejo!`);
         if (o.type === 'log') {
           onLog = true;
           state.frog.x += o.speed * delta;
@@ -312,7 +336,7 @@
         }
       }
     });
-    if ([1, 2, 3].includes(state.frog.row) && !onLog) loseLife('Caíste al río. Busca troncos.');
+    if ([1, 2, 3].includes(state.frog.row) && !onLog) loseLife('Caíste al arroyo. Busca troncos.');
     if (state.frog.x < 0 || state.frog.x + state.frog.size > canvas.width) loseLife('Te saliste del tablero.');
     collectBonus();
     if (state.bonus && !state.bonus.collected) {
