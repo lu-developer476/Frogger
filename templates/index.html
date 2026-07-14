@@ -10,25 +10,34 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-  <main class="app-shell" aria-label="Frogger Rally con estética de quest">
+  <main class="app-shell" aria-label="Frogger Rally con estética animalista">
     <section class="top-bar" aria-label="Opciones del juego">
-      <div class="brand-lockup" aria-label="Identidad del juego"><span class="brand-icon">🐸</span><span><strong>Frogger Rally</strong><small>Quest style</small></span></div>
-      <button id="startButton" type="button">Iniciar / reiniciar</button>
+      <div class="brand-lockup" aria-label="Identidad del juego"><span class="brand-icon">🐸</span><span><strong>Frogger Rally</strong><small>La rana del bosque</small></span></div>
+      <nav class="nav-links" aria-label="Secciones de Frogger Rally"><a href="#game-card">Jugar</a><a href="#ranking">Ranking</a><a href="#message">Guía</a></nav>
+      <button id="startButton" type="button">Jugar ahora</button>
       <label for="difficulty">Dificultad</label>
       <select id="difficulty"><option value="easy">Fácil</option><option value="medium" selected>Media</option><option value="hard">Difícil</option></select>
     </section>
-    <section class="hud" aria-live="polite">
+    <section class="hero" aria-label="Presentación animalista de Frogger Rally">
+      <div class="hero-copy">
+        <p class="eyebrow">Juego web · Django + Canvas</p>
+        <h1>Saltá alto. Cuidá el humedal.</h1>
+        <p>Guiá a la rana entre troncos, depredadores y senderos verdes. Una aventura rápida, amable y competitiva sin perder su esencia Frogger.</p>
+      </div>
+      <div class="hero-pond" aria-hidden="true"><span class="sun"></span><span class="frog-mascot">🐸</span><span class="score-chip">🪰 +100</span><span class="combo-chip">Combo x4</span></div>
+    </section>
+    <section id="ranking" class="hud" aria-live="polite">
       <span>Nivel <strong id="level">1</strong></span><span>Puntaje <strong id="score">0</strong></span><span>Vidas <strong id="lives">3</strong></span><span>Tiempo <strong id="timeLeft">45</strong></span><span>Racha <strong id="streak">0</strong></span><span>Mejor <strong id="bestScore">0</strong></span>
     </section>
-    <section class="game-card">
-      <canvas id="game" width="720" height="720" aria-label="Tablero del juego Frogger Rally con estética de quest"></canvas>
+    <section id="game-card" class="game-card">
+      <canvas id="game" width="720" height="720" aria-label="Tablero del juego Frogger Rally con estética animalista"></canvas>
       <div class="touch-controls" aria-label="Controles táctiles con flechas">
         <button type="button" data-move="0,-1" aria-label="Mover arriba">↑</button>
         <button type="button" data-move="-1,0" aria-label="Mover izquierda">←</button>
         <button type="button" data-move="0,1" aria-label="Mover abajo">↓</button>
         <button type="button" data-move="1,0" aria-label="Mover derecha">→</button>
       </div>
-      <div id="message" class="message">Enter para iniciar. Guía a la rana con flechas, WASD, swipe o botones.</div>
+      <div id="message" class="message">Enter para iniciar. Guía siempre a la rana con flechas, WASD, swipe o botones.</div>
     </section>
   </main>
   <script src="{% static 'js/game.js' %}" defer></script>

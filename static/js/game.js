@@ -95,7 +95,7 @@
       bonus: spawnBonus(),
       particles: [],
       lastTime: 0,
-      status: 'Cruza hacia una meta iluminada. ¡Completa las cinco ranas!',
+      status: 'Cruza el humedal hacia una hoja iluminada. ¡Reuní a las cinco ranas!'
     };
     state = next;
     resetFrog();
@@ -110,22 +110,22 @@
   };
 
   const drawBackground = () => {
-    ['#166534', '#1d4ed8', '#1d4ed8', '#1d4ed8', '#365314', '#374151', '#374151', '#374151', '#166534', '#14532d'].forEach((color, row) => {
+    ['#8fbc72', '#bfe3e2', '#bfe3e2', '#bfe3e2', '#d9e9c6', '#c7b39a', '#c7b39a', '#c7b39a', '#a8cf87', '#6f9a58'].forEach((color, row) => {
       ctx.fillStyle = color;
       ctx.fillRect(0, row * tile, canvas.width, tile);
-      ctx.fillStyle = row === 5 || row === 6 || row === 7 ? 'rgba(15,23,42,.28)' : 'rgba(255,255,255,.04)';
+      ctx.fillStyle = row === 5 || row === 6 || row === 7 ? 'rgba(86,61,42,.16)' : 'rgba(255,255,255,.26)';
       for (let x = row % 2 ? 0 : 36; x < canvas.width; x += tile) ctx.fillRect(x, row * tile + 8, 34, 4);
     });
-    ctx.fillStyle = 'rgba(255,255,255,.18)';
+    ctx.fillStyle = 'rgba(255,254,250,.58)';
     for (let x = 0; x < canvas.width; x += tile) ctx.fillRect(x + 34, tile * 5, 4, tile * 3);
-    ctx.fillStyle = 'rgba(236,253,245,.18)';
+    ctx.fillStyle = 'rgba(47,81,49,.18)';
     for (let x = 0; x < canvas.width; x += tile) {
       ctx.fillRect(x + 10, tile * 4 + 12, 24, 8);
-      ctx.fillStyle = 'rgba(132,204,22,.65)';
+      ctx.fillStyle = 'rgba(111,154,88,.78)';
       ctx.beginPath();
       ctx.arc(x + 60, tile * 4 + 17, 8, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = 'rgba(236,253,245,.18)';
+      ctx.fillStyle = 'rgba(47,81,49,.18)';
     }
     goalColumns.forEach((col) => {
       const occupied = state?.goals?.has(col);
@@ -272,7 +272,7 @@
     state.timeLeft = difficulty().time + Math.min(state.level * 2, 14);
     state.obstacles = buildObstacles(state.level);
     state.bonus = spawnBonus();
-    state.status = '¡Tablero completo! La ciudad acelera y el bonus sube.';
+    state.status = '¡Humedal completo! El bosque se mueve más rápido y el bonus sube.';
   };
 
   const completeGoal = () => {
@@ -326,7 +326,7 @@
         }
       }
     });
-    if ([1, 2, 3].includes(state.frog.row) && !onLog) loseLife('Caíste al arroyo. Busca troncos.');
+    if ([1, 2, 3].includes(state.frog.row) && !onLog) loseLife('Caíste al arroyo. Buscá troncos y hojas seguras.');
     if (state.frog.x < 0 || state.frog.x + state.frog.size > canvas.width) loseLife('Te saliste del tablero.');
     collectBonus();
     if (state.bonus && !state.bonus.collected) {
