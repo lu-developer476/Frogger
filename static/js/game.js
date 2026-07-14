@@ -14,6 +14,12 @@
     mobileControls: document.querySelectorAll('[data-move]'),
     guide: document.querySelector('#guideButton'),
     guideDialog: document.querySelector('#guideDialog'),
+    setupDialog: document.querySelector('#setupDialog'),
+    confirmStart: document.querySelector('#confirmStart'),
+    frogSpecies: document.querySelector('#frogSpecies'),
+    frogSize: document.querySelector('#frogSize'),
+    frogPreview: document.querySelector('#frogPreview'),
+    frogSpeciesInfo: document.querySelector('#frogSpeciesInfo'),
   };
 
   const tile = 72;
@@ -28,6 +34,19 @@
     medium: { speed: 1, lives: 3, traffic: 1, time: 45, bonus: 1.2 },
     hard: { speed: 1.35, lives: 3, traffic: 1.25, time: 38, bonus: 1.5 },
   };
+  const frogProfiles = {
+    greenTree: { name: 'Rana verde arbórea', body: '#76d66b', belly: '#ffe5a3', eye: '#f6d35b', pupil: '#111827', spot: '#3f9f45', pattern: 'soft', info: 'Verde suave, vientre crema y ojos dorados como la rana de la captura.' },
+    redEye: { name: 'Rana de ojos rojos', body: '#4ade80', belly: '#fef3c7', eye: '#ef4444', pupil: '#111827', spot: '#2563eb', pattern: 'flanks', info: 'Verde intenso, ojos rojos y laterales azulados de la rana de ojos rojos.' },
+    poisonDart: { name: 'Rana dardo venenosa', body: '#22d3ee', belly: '#a7f3d0', eye: '#111827', pupil: '#f8fafc', spot: '#0f172a', pattern: 'spots', info: 'Azul tropical con manchas oscuras reales de ranas dardo.' },
+    tomato: { name: 'Rana tomate', body: '#f97316', belly: '#fed7aa', eye: '#7c2d12', pupil: '#111827', spot: '#c2410c', pattern: 'stripe', info: 'Naranja rojizo y vientre cálido inspirado en la rana tomate.' },
+    glass: { name: 'Rana de cristal', body: 'rgba(134,239,172,.82)', belly: 'rgba(240,253,244,.72)', eye: '#d9f99d', pupil: '#14532d', spot: '#22c55e', pattern: 'translucent', info: 'Verde translúcido y vientre pálido como las ranas de cristal.' },
+  };
+  const frogSizeMap = { small: 32, medium: 38, large: 44 };
+  const frogConfig = () => ({
+    ...(frogProfiles[ui.frogSpecies?.value] || frogProfiles.greenTree),
+    size: frogSizeMap[ui.frogSize?.value] || frogSizeMap.medium,
+  });
+
   const lanes = [
     { row: 7, type: 'vehicle', kind: 'taxi', label: 'TAXI', color: '#facc15', speed: 2.4, size: 1.1, gaps: [0, 4, 8] },
     { row: 7, type: 'vehicle', kind: 'motorcycle', label: 'MOTO', color: '#38bdf8', speed: 3.3, size: 0.62, gaps: [2, 6] },
@@ -78,7 +97,7 @@
   };
 
   const resetFrog = () => {
-    state.frog = { col: 4, row: 8, x: safeX(4), y: safeY(8), size: 36, shield: 0 };
+    state.frog = { col: 4, row: 8, x: safeX(4), y: safeY(8), size: frogConfig().size, shield: 0 };
   };
 
   const freshState = () => {
@@ -194,37 +213,65 @@
     ctx.textAlign = 'start';
   };
 
+  const renderFrog = (targetCtx, x, y, size, shield = 0, profile = frogConfig()) => {
+    const cx = x + size / 2;
+    const cy = y + size / 2;
+    if (shield > 0) {
+      targetCtx.strokeStyle = 'rgba(147,197,253,.9)';
+      targetCtx.lineWidth = 4;
+      targetCtx.beginPath();
+      targetCtx.arc(cx, cy, size * 0.75, 0, Math.PI * 2);
+      targetCtx.stroke();
+    }
+    targetCtx.fillStyle = profile.body;
+    targetCtx.beginPath();
+    targetCtx.ellipse(cx, cy + size * 0.07, size * 0.52, size * 0.47, 0, 0, Math.PI * 2);
+    targetCtx.fill();
+    targetCtx.fillStyle = profile.belly;
+    targetCtx.beginPath();
+    targetCtx.ellipse(cx, y + size * 0.66, size * 0.36, size * 0.2, 0, 0, Math.PI * 2);
+    targetCtx.fill();
+    targetCtx.fillStyle = profile.body;
+    targetCtx.beginPath();
+    targetCtx.arc(x + size * 0.28, y + size * 0.25, size * 0.2, 0, Math.PI * 2);
+    targetCtx.arc(x + size * 0.72, y + size * 0.25, size * 0.2, 0, Math.PI * 2);
+    targetCtx.fill();
+    targetCtx.fillStyle = profile.eye;
+    targetCtx.beginPath();
+    targetCtx.arc(x + size * 0.28, y + size * 0.22, size * 0.11, 0, Math.PI * 2);
+    targetCtx.arc(x + size * 0.72, y + size * 0.22, size * 0.11, 0, Math.PI * 2);
+    targetCtx.fill();
+    targetCtx.fillStyle = profile.pupil;
+    targetCtx.beginPath();
+    targetCtx.arc(x + size * 0.28, y + size * 0.22, size * 0.045, 0, Math.PI * 2);
+    targetCtx.arc(x + size * 0.72, y + size * 0.22, size * 0.045, 0, Math.PI * 2);
+    targetCtx.fill();
+    targetCtx.strokeStyle = '#166534';
+    targetCtx.lineWidth = Math.max(3, size * 0.08);
+    targetCtx.beginPath();
+    targetCtx.moveTo(x + size * 0.18, y + size * 0.72);
+    targetCtx.lineTo(x - size * 0.04, y + size * 0.93);
+    targetCtx.moveTo(x + size * 0.82, y + size * 0.72);
+    targetCtx.lineTo(x + size * 1.04, y + size * 0.93);
+    targetCtx.stroke();
+    targetCtx.fillStyle = profile.spot;
+    if (profile.pattern === 'spots') {
+      [0.38, 0.5, 0.62].forEach((offset, i) => { targetCtx.beginPath(); targetCtx.arc(x + size * offset, y + size * (0.42 + i * 0.08), size * 0.045, 0, Math.PI * 2); targetCtx.fill(); });
+    } else if (profile.pattern === 'flanks') {
+      targetCtx.fillRect(x + size * 0.08, y + size * 0.45, size * 0.16, size * 0.08);
+      targetCtx.fillRect(x + size * 0.76, y + size * 0.45, size * 0.16, size * 0.08);
+    } else if (profile.pattern === 'stripe') {
+      targetCtx.fillRect(x + size * 0.33, y + size * 0.35, size * 0.34, size * 0.055);
+    } else if (profile.pattern === 'translucent') {
+      targetCtx.globalAlpha = 0.35;
+      targetCtx.fillRect(x + size * 0.42, y + size * 0.48, size * 0.16, size * 0.18);
+      targetCtx.globalAlpha = 1;
+    }
+  };
+
   const drawFrog = () => {
     const { x, y, size, shield } = state.frog;
-    if (shield > 0) {
-      ctx.strokeStyle = 'rgba(147,197,253,.9)';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.arc(x + size / 2, y + size / 2, 27, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-    ctx.fillStyle = '#4ade80';
-    ctx.beginPath();
-    ctx.ellipse(x + size / 2, y + size / 2 + 2, size / 2, size / 2.2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#86efac';
-    ctx.beginPath();
-    ctx.arc(x + 9, y + 7, 8, 0, Math.PI * 2);
-    ctx.arc(x + 27, y + 7, 8, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#052e16';
-    ctx.beginPath();
-    ctx.arc(x + 9, y + 7, 3.5, 0, Math.PI * 2);
-    ctx.arc(x + 27, y + 7, 3.5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#166534';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(x + 4, y + 28);
-    ctx.lineTo(x - 3, y + 35);
-    ctx.moveTo(x + 32, y + 28);
-    ctx.lineTo(x + 39, y + 35);
-    ctx.stroke();
+    renderFrog(ctx, x, y, size, shield);
   };
 
   const drawParticles = () => {
@@ -371,6 +418,25 @@
     loop(0);
   };
 
+  const drawFrogPreview = () => {
+    if (!ui.frogPreview) return;
+    const previewCtx = ui.frogPreview.getContext('2d');
+    const profile = frogConfig();
+    previewCtx.clearRect(0, 0, ui.frogPreview.width, ui.frogPreview.height);
+    previewCtx.fillStyle = '#e8f5d9';
+    previewCtx.fillRect(0, 0, ui.frogPreview.width, ui.frogPreview.height);
+    renderFrog(previewCtx, 43, 38, 58, 0, profile);
+    if (ui.frogSpeciesInfo) ui.frogSpeciesInfo.textContent = profile.info;
+    if (state?.frog) state.frog.size = profile.size;
+    if (state && !state.running) draw();
+  };
+
+  const openSetup = () => {
+    drawFrogPreview();
+    if (typeof ui.setupDialog?.showModal === 'function') ui.setupDialog.showModal();
+    else start();
+  };
+
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') start();
     if (keys[event.key]) {
@@ -391,13 +457,17 @@
     if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
     Math.abs(dx) > Math.abs(dy) ? moveFrog(Math.sign(dx), 0) : moveFrog(0, Math.sign(dy));
   }, { passive: true });
-  ui.start.addEventListener('click', start);
-  ui.difficulty.addEventListener('change', start);
+  ui.start.addEventListener('click', openSetup);
+  ui.confirmStart?.addEventListener('click', start);
+  ui.difficulty?.addEventListener('change', drawFrogPreview);
+  ui.frogSpecies?.addEventListener('change', drawFrogPreview);
+  ui.frogSize?.addEventListener('change', drawFrogPreview);
   ui.guide?.addEventListener('click', () => {
     if (typeof ui.guideDialog?.showModal === 'function') ui.guideDialog.showModal();
   });
   ui.best.textContent = localStorage.getItem('froggerBest') || '0';
   state = freshState();
   state.running = false;
+  drawFrogPreview();
   draw();
 })();

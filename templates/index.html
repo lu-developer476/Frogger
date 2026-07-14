@@ -14,10 +14,8 @@
     <section class="top-bar" aria-label="Opciones del juego">
       <div class="brand-lockup" aria-label="Identidad del juego"><span class="brand-icon">🐸</span><span><strong>Frogger Rally</strong><small>La rana del bosque</small></span></div>
       <nav class="nav-links" aria-label="Secciones de Frogger Rally"><a href="{% url 'ranking' %}">Ranking</a><button id="guideButton" class="nav-button" type="button">Guía</button></nav>
-      <div class="play-control" aria-label="Iniciar juego y elegir dificultad">
+      <div class="play-control" aria-label="Iniciar juego y configurar partida">
         <button id="startButton" type="button">Jugar ahora</button>
-        <label class="sr-only" for="difficulty">Dificultad</label>
-        <select id="difficulty" aria-label="Dificultad"><option value="easy">Fácil</option><option value="medium" selected>Media</option><option value="hard">Difícil</option></select>
       </div>
     </section>
     <section class="hero" aria-label="Presentación animalista de Frogger Rally">
@@ -40,6 +38,20 @@
       <div id="message" class="message">Enter para iniciar. Guía siempre a la rana con flechas, WASD, swipe o botones.</div>
     </section>
   </main>
+  <dialog id="setupDialog" class="setup-dialog" aria-labelledby="setupTitle">
+    <form method="dialog">
+      <button class="dialog-close" value="close" aria-label="Cerrar configuración">×</button>
+      <p class="eyebrow">Prepará tu salto</p>
+      <h2 id="setupTitle">Elegí dificultad y especie</h2>
+      <div class="setup-grid">
+        <label>Dificultad<select id="difficulty" aria-label="Dificultad"><option value="easy">Fácil</option><option value="medium" selected>Media</option><option value="hard">Difícil</option></select></label>
+        <label>Especie<select id="frogSpecies" aria-label="Especie de rana"><option value="greenTree" selected>Rana verde arbórea</option><option value="redEye">Rana de ojos rojos</option><option value="poisonDart">Rana dardo venenosa</option><option value="tomato">Rana tomate</option><option value="glass">Rana de cristal</option></select></label>
+        <label>Tamaño<select id="frogSize" aria-label="Tamaño de la rana"><option value="small">Pequeña</option><option value="medium" selected>Mediana</option><option value="large">Grande</option></select></label>
+      </div>
+      <div class="frog-preview-card" aria-hidden="true"><canvas id="frogPreview" width="144" height="144"></canvas><p id="frogSpeciesInfo">Verde suave, vientre crema y ojos dorados.</p></div>
+      <button id="confirmStart" class="primary-action" value="start" type="submit">Comenzar partida</button>
+    </form>
+  </dialog>
   <dialog id="guideDialog" class="guide-dialog" aria-labelledby="guideTitle">
     <form method="dialog">
       <button class="dialog-close" value="close" aria-label="Cerrar guía">×</button>
