@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ranking · Frogger Rally</title>
+  <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <main class="app-shell ranking-shell" aria-label="Ranking de Frogger Rally">
+    <section class="top-bar" aria-label="Navegación del ranking">
+      <div class="brand-lockup" aria-label="Identidad del juego"><span class="brand-icon">🐸</span><span><strong>Frogger Rally</strong><small>La rana del bosque</small></span></div>
+      <nav class="nav-links" aria-label="Secciones"><a href="{% url 'index' %}">Volver al juego</a></nav>
+    </section>
+    <section class="ranking-card">
+      <p class="eyebrow">Ranking</p>
+      <h1>Mejores partidas</h1>
+      <p>Tu mejor puntaje local aparece debajo. Próximamente se integrará un ranking global persistente.</p>
+      <div class="ranking-list"><span>Mejor puntaje local</span><strong id="rankingBest">0</strong></div>
+    </section>
+  </main>
+  <footer class="site-footer">© 2026 Todos los derechos reservados • Built with Python &amp; Django • UX/UI Interface • Deployed on Render ®</footer>
+  <script>
+    document.querySelector('#rankingBest').textContent = localStorage.getItem('froggerBest') || '0';
+  </script>
+</body>
+</html>

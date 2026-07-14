@@ -12,6 +12,8 @@
     streak: document.querySelector('#streak'),
     message: document.querySelector('#message'),
     mobileControls: document.querySelectorAll('[data-move]'),
+    guide: document.querySelector('#guideButton'),
+    guideDialog: document.querySelector('#guideDialog'),
   };
 
   const tile = 72;
@@ -391,6 +393,9 @@
   }, { passive: true });
   ui.start.addEventListener('click', start);
   ui.difficulty.addEventListener('change', start);
+  ui.guide?.addEventListener('click', () => {
+    if (typeof ui.guideDialog?.showModal === 'function') ui.guideDialog.showModal();
+  });
   ui.best.textContent = localStorage.getItem('froggerBest') || '0';
   state = freshState();
   state.running = false;
