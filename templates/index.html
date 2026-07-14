@@ -13,16 +13,16 @@
   <main class="app-shell" aria-label="Frogger Rally con estética animalista">
     <section class="top-bar" aria-label="Opciones del juego">
       <div class="brand-lockup" aria-label="Identidad del juego"><span class="brand-icon">🐸</span><span><strong>Frogger Rally</strong><small>La rana del bosque</small></span></div>
-      <nav class="nav-links" aria-label="Secciones de Frogger Rally"><a href="#game-card">Jugar</a><a href="#ranking">Ranking</a><a href="#message">Guía</a></nav>
-      <button id="startButton" type="button">Jugar ahora</button>
-      <label for="difficulty">Dificultad</label>
-      <select id="difficulty"><option value="easy">Fácil</option><option value="medium" selected>Media</option><option value="hard">Difícil</option></select>
+      <nav class="nav-links" aria-label="Secciones de Frogger Rally"><a href="{% url 'ranking' %}">Ranking</a><button id="guideButton" class="nav-button" type="button">Guía</button></nav>
+      <div class="play-control" aria-label="Iniciar juego y elegir dificultad">
+        <button id="startButton" type="button">Jugar ahora</button>
+        <label class="sr-only" for="difficulty">Dificultad</label>
+        <select id="difficulty" aria-label="Dificultad"><option value="easy">Fácil</option><option value="medium" selected>Media</option><option value="hard">Difícil</option></select>
+      </div>
     </section>
     <section class="hero" aria-label="Presentación animalista de Frogger Rally">
       <div class="hero-copy">
-        <p class="eyebrow">Juego web · Django + Canvas</p>
-        <h1>Saltá alto. Cuidá el humedal.</h1>
-        <p>Guiá a la rana entre troncos, depredadores y senderos verdes. Una aventura rápida, amable y competitiva sin perder su esencia Frogger.</p>
+        <h1>Arcade ágil y competitivo.</h1>
       </div>
       <div class="hero-pond" aria-hidden="true"><span class="sun"></span><span class="frog-mascot">🐸</span><span class="score-chip">🪰 +100</span><span class="combo-chip">Combo x4</span></div>
     </section>
@@ -40,6 +40,18 @@
       <div id="message" class="message">Enter para iniciar. Guía siempre a la rana con flechas, WASD, swipe o botones.</div>
     </section>
   </main>
+  <dialog id="guideDialog" class="guide-dialog" aria-labelledby="guideTitle">
+    <form method="dialog">
+      <button class="dialog-close" value="close" aria-label="Cerrar guía">×</button>
+      <h2 id="guideTitle">Guía rápida</h2>
+      <ul>
+        <li>Usá flechas, WASD, swipe o botones táctiles para moverte.</li>
+        <li>Cruzá caminos y arroyos hasta ocupar las hojas iluminadas.</li>
+        <li>Recolectá bonus para sumar puntos, tiempo o protección.</li>
+      </ul>
+    </form>
+  </dialog>
+  <footer class="site-footer">© 2026 Todos los derechos reservados • Built with Python &amp; Django • UX/UI Interface • Deployed on Render ®</footer>
   <script src="{% static 'js/game.js' %}" defer></script>
 </body>
 </html>
