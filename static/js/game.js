@@ -26,6 +26,37 @@
   };
 
 
+  const TEXTS = {
+    frogProfiles: {
+      greenTree: { name: 'Rana verde arbórea', info: 'Verde suave, vientre crema y ojos dorados como la rana de la captura.' },
+      redEye: { name: 'Rana de ojos rojos', info: 'Verde intenso, ojos rojos y laterales azulados de la rana de ojos rojos.' },
+      poisonDart: { name: 'Rana dardo venenosa', info: 'Azul tropical con manchas oscuras reales de ranas dardo.' },
+      tomato: { name: 'Rana tomate', info: 'Naranja rojizo y vientre cálido inspirado en la rana tomate.' },
+      glass: { name: 'Rana de cristal', info: 'Verde translúcido y vientre pálido como las ranas de cristal.' },
+    },
+    scenarios: {
+      city: { name: 'Ciudad', message: 'Ciudad: esquivá tráfico urbano, taxis, buses y motos hasta llegar a las plazas iluminadas.' },
+      forest: { name: 'Bosque', message: 'Bosque: avanzá entre depredadores naturales, ramas móviles y claros seguros.' },
+      snow: { name: 'Nieve', message: 'Nieve: cruzá hielo quebradizo y rutas congeladas con poca visibilidad.' },
+      desert: { name: 'Desierto', message: 'Desierto: evitá escorpiones, buitres y tormentas de arena en un cruce seco.' },
+      mixed: { name: 'Ruta, lago y bosque', message: 'Ruta, lago y bosque: el desafío total combina vehículos, troncos y depredadores.' },
+    },
+    gameOver: (score) => `Fin del juego. Puntaje final: ${score}.`,
+    shield: (reason) => `Escudo activado: ${reason}`,
+    boardComplete: (scenario) => `¡${scenario} completo! El siguiente nivel se mueve más rápido y el bonus sube.`,
+    unavailableGoal: 'Esa meta no estaba libre. Apunta a una zona iluminada.',
+    goalSecured: (streak) => `¡Meta asegurada! Racha x${streak}.`,
+    clockBonus: 'Reloj recogido: +8 segundos.',
+    flyBonus: 'Mosca dorada: +150 y escudo contra el próximo golpe.',
+    timeout: 'Se terminó el tiempo.',
+    hitVehicle: (label) => `¡Te atropelló un/a ${label.toLowerCase()}!`,
+    hitPredator: (label) => `¡Un depredador natural (${label.toLowerCase()}) atrapó a la rana!`,
+    fixedObstacle: (label) => `Chocaste con un obstáculo fijo (${(label || 'obstáculo').toLowerCase()}).`,
+    waterFall: 'Caíste al agua o al hielo. Buscá troncos, témpanos y zonas seguras.',
+    outOfBounds: 'Te saliste del tablero.',
+    restartPrompt: 'Pulsa iniciar para volver a jugar.',
+  };
+
   const compactSettingsQuery = window.matchMedia('(max-width: 980px)');
 
   const syncVisualSettingsVisibility = () => {
@@ -49,15 +80,15 @@
     hard: { speed: 1.35, lives: 3, traffic: 1.25, time: 38, bonus: 1.5, spawn: { vehicle: 1.35, predator: 1.5, log: 1.12 } },
   };
   const frogProfiles = {
-    greenTree: { name: 'Rana verde arbórea', body: '#76d66b', belly: '#ffe5a3', eye: '#f6d35b', pupil: '#111827', spot: '#3f9f45', pattern: 'soft', info: 'Verde suave, vientre crema y ojos dorados como la rana de la captura.' },
-    redEye: { name: 'Rana de ojos rojos', body: '#4ade80', belly: '#fef3c7', eye: '#ef4444', pupil: '#111827', spot: '#2563eb', pattern: 'flanks', info: 'Verde intenso, ojos rojos y laterales azulados de la rana de ojos rojos.' },
-    poisonDart: { name: 'Rana dardo venenosa', body: '#22d3ee', belly: '#a7f3d0', eye: '#111827', pupil: '#f8fafc', spot: '#0f172a', pattern: 'spots', info: 'Azul tropical con manchas oscuras reales de ranas dardo.' },
-    tomato: { name: 'Rana tomate', body: '#f97316', belly: '#fed7aa', eye: '#7c2d12', pupil: '#111827', spot: '#c2410c', pattern: 'stripe', info: 'Naranja rojizo y vientre cálido inspirado en la rana tomate.' },
-    glass: { name: 'Rana de cristal', body: 'rgba(134,239,172,.82)', belly: 'rgba(240,253,244,.72)', eye: '#d9f99d', pupil: '#14532d', spot: '#22c55e', pattern: 'translucent', info: 'Verde translúcido y vientre pálido como las ranas de cristal.' },
+    greenTree: { name: TEXTS.frogProfiles.greenTree.name, body: '#76d66b', belly: '#ffe5a3', eye: '#f6d35b', pupil: '#111827', spot: '#3f9f45', pattern: 'soft', info: TEXTS.frogProfiles.greenTree.info },
+    redEye: { name: TEXTS.frogProfiles.redEye.name, body: '#4ade80', belly: '#fef3c7', eye: '#ef4444', pupil: '#111827', spot: '#2563eb', pattern: 'flanks', info: TEXTS.frogProfiles.redEye.info },
+    poisonDart: { name: TEXTS.frogProfiles.poisonDart.name, body: '#22d3ee', belly: '#a7f3d0', eye: '#111827', pupil: '#f8fafc', spot: '#0f172a', pattern: 'spots', info: TEXTS.frogProfiles.poisonDart.info },
+    tomato: { name: TEXTS.frogProfiles.tomato.name, body: '#f97316', belly: '#fed7aa', eye: '#7c2d12', pupil: '#111827', spot: '#c2410c', pattern: 'stripe', info: TEXTS.frogProfiles.tomato.info },
+    glass: { name: TEXTS.frogProfiles.glass.name, body: 'rgba(134,239,172,.82)', belly: 'rgba(240,253,244,.72)', eye: '#d9f99d', pupil: '#14532d', spot: '#22c55e', pattern: 'translucent', info: TEXTS.frogProfiles.glass.info },
   };
   const scenarioPalettes = {
     city: {
-      name: 'Ciudad',
+      name: TEXTS.scenarios.city.name,
       rows: ['#334155', '#475569', '#334155', '#475569', '#64748b', '#475569', '#334155', '#475569', '#22c55e', '#166534'],
       roadRows: [1, 2, 3, 5, 6, 7],
       waterRows: [],
@@ -66,10 +97,10 @@
       roadStripe: 'rgba(248,250,252,.24)',
       goal: '#fde68a',
       occupied: '#f59e0b',
-      message: 'Ciudad: esquivá tráfico urbano, taxis, buses y motos hasta llegar a las plazas iluminadas.',
+      message: TEXTS.scenarios.city.message,
     },
     forest: {
-      name: 'Bosque',
+      name: TEXTS.scenarios.forest.name,
       rows: ['#14532d', '#166534', '#15803d', '#166534', '#365314', '#3f6212', '#166534', '#15803d', '#22c55e', '#052e16'],
       roadRows: [],
       waterRows: [],
@@ -78,10 +109,10 @@
       roadStripe: 'rgba(220,252,231,.16)',
       goal: '#86efac',
       occupied: '#16a34a',
-      message: 'Bosque: avanzá entre depredadores naturales, ramas móviles y claros seguros.',
+      message: TEXTS.scenarios.forest.message,
     },
     snow: {
-      name: 'Nieve',
+      name: TEXTS.scenarios.snow.name,
       rows: ['#e0f2fe', '#bae6fd', '#f8fafc', '#cbd5e1', '#e2e8f0', '#94a3b8', '#f1f5f9', '#cbd5e1', '#dbeafe', '#eff6ff'],
       roadRows: [5, 7],
       waterRows: [1, 3],
@@ -90,10 +121,10 @@
       roadStripe: 'rgba(15,23,42,.16)',
       goal: '#bfdbfe',
       occupied: '#60a5fa',
-      message: 'Nieve: cruzá hielo quebradizo y rutas congeladas con poca visibilidad.',
+      message: TEXTS.scenarios.snow.message,
     },
     desert: {
-      name: 'Desierto',
+      name: TEXTS.scenarios.desert.name,
       rows: ['#92400e', '#f59e0b', '#d97706', '#fbbf24', '#b45309', '#78350f', '#f59e0b', '#d97706', '#fde68a', '#92400e'],
       roadRows: [5],
       waterRows: [],
@@ -102,10 +133,10 @@
       roadStripe: 'rgba(254,215,170,.24)',
       goal: '#fef3c7',
       occupied: '#f97316',
-      message: 'Desierto: evitá escorpiones, buitres y tormentas de arena en un cruce seco.',
+      message: TEXTS.scenarios.desert.message,
     },
     mixed: {
-      name: 'Ruta, lago y bosque',
+      name: TEXTS.scenarios.mixed.name,
       rows: ['#166534', '#38bdf8', '#38bdf8', '#38bdf8', '#22c55e', '#57534e', '#57534e', '#57534e', '#4ade80', '#14532d'],
       roadRows: [5, 6, 7],
       waterRows: [1, 2, 3],
@@ -114,7 +145,7 @@
       roadStripe: 'rgba(250,204,21,.16)',
       goal: '#86efac',
       occupied: '#16a34a',
-      message: 'Ruta, lago y bosque: el desafío total combina vehículos, troncos y depredadores.',
+      message: TEXTS.scenarios.mixed.message,
     },
   };
   const scenarioConfig = () => scenarioPalettes[ui.scenario?.value] || scenarioPalettes.mixed;
@@ -591,7 +622,7 @@
     const resetTimer = reason.includes('tiempo');
     if (state.frog.shield > 0) {
       state.frog.shield = 0;
-      state.status = `Escudo activado: ${reason}`;
+      state.status = TEXTS.shield(reason);
       if (resetTimer) state.timeLeft = difficulty().time;
       resetFrog();
       return;
@@ -603,7 +634,7 @@
     addParticles(state.frog.x + 18, state.frog.y + 18, '#ef4444', 16);
     if (state.lives <= 0) {
       state.running = false;
-      state.status = `Fin del juego. Puntaje final: ${state.score}.`;
+      state.status = TEXTS.gameOver(state.score);
     }
     resetFrog();
   };
@@ -615,20 +646,20 @@
     state.timeLeft = difficulty().time + Math.min(state.level * 2, 14);
     state.obstacles = buildObstacles(state.level);
     state.bonus = spawnBonus();
-    state.status = `¡${scenarioConfig().name} completo! El siguiente nivel se mueve más rápido y el bonus sube.`;
+    state.status = TEXTS.boardComplete(scenarioConfig().name);
   };
 
   const completeGoal = () => {
     const nearestGoal = goalColumns.reduce((best, col) => (Math.abs(col - state.frog.col) < Math.abs(best - state.frog.col) ? col : best), goalColumns[0]);
     if (Math.abs(nearestGoal - state.frog.col) > 1 || state.goals.has(nearestGoal)) {
-      loseLife('Esa meta no estaba libre. Apunta a una zona iluminada.');
+      loseLife(TEXTS.unavailableGoal);
       return;
     }
     state.goals.add(nearestGoal);
     state.streak += 1;
     state.score += Math.round((100 + state.level * 25 + state.timeLeft * 3 + state.streak * 20) * difficulty().bonus);
     addParticles(nearestGoal * tile + 36, 36, '#4ade80', 22);
-    state.status = `¡Meta asegurada! Racha x${state.streak}.`;
+    state.status = TEXTS.goalSecured(state.streak);
     resetFrog();
     if (state.goals.size === goalColumns.length) completeBoard();
   };
@@ -638,11 +669,11 @@
     state.bonus.collected = true;
     if (state.bonus.type === 'clock') {
       state.timeLeft += 8;
-      state.status = 'Reloj recogido: +8 segundos.';
+      state.status = TEXTS.clockBonus;
     } else {
       state.score += 150;
       state.frog.shield = 1;
-      state.status = 'Mosca dorada: +150 y escudo contra el próximo golpe.';
+      state.status = TEXTS.flyBonus;
     }
     addParticles(state.frog.x + 18, state.frog.y + 18, '#fde68a', 18);
   };
@@ -653,28 +684,28 @@
 
   const update = (delta) => {
     state.timeLeft -= delta / 60;
-    if (state.timeLeft <= 0) loseLife('Se terminó el tiempo.');
+    if (state.timeLeft <= 0) loseLife(TEXTS.timeout);
     let onLog = false;
     state.obstacles.forEach((o) => {
       o.x += o.speed * delta;
       if (o.speed > 0 && o.x > canvas.width + tile) o.x = -o.width;
       if (o.speed < 0 && o.x < -o.width - tile) o.x = canvas.width + tile;
       if (overlap(state.frog, o)) {
-        if (o.type === 'vehicle') loseLife(`¡Te atropelló un/a ${o.label.toLowerCase()}!`);
-        if (o.type === 'predator') loseLife(`¡Un depredador natural (${o.label.toLowerCase()}) atrapó a la rana!`);
+        if (o.type === 'vehicle') loseLife(TEXTS.hitVehicle(o.label));
+        if (o.type === 'predator') loseLife(TEXTS.hitPredator(o.label));
         if (o.type === 'log') {
           if (isWaterLane(o.row)) {
             onLog = true;
             state.frog.x += o.speed * delta;
             state.frog.col = Math.round((state.frog.x - 18) / tile);
           } else {
-            loseLife(`Chocaste con un obstáculo fijo (${(o.label || 'obstáculo').toLowerCase()}).`);
+            loseLife(TEXTS.fixedObstacle(o.label));
           }
         }
       }
     });
-    if (scenarioConfig().waterRows.includes(state.frog.row) && !onLog) loseLife('Caíste al agua o al hielo. Buscá troncos, témpanos y zonas seguras.');
-    if (state.frog.x < 0 || state.frog.x + state.frog.size > canvas.width) loseLife('Te saliste del tablero.');
+    if (scenarioConfig().waterRows.includes(state.frog.row) && !onLog) loseLife(TEXTS.waterFall);
+    if (state.frog.x < 0 || state.frog.x + state.frog.size > canvas.width) loseLife(TEXTS.outOfBounds);
     collectBonus();
     if (state.bonus && !state.bonus.collected) {
       state.bonus.ttl -= delta / 60;
@@ -698,7 +729,7 @@
     ui.best.textContent = state.best;
     ui.time.textContent = Math.max(0, Math.ceil(state.timeLeft));
     ui.streak.textContent = state.streak;
-    ui.message.textContent = state.running ? state.status : `${state.status} Pulsa iniciar para volver a jugar.`;
+    ui.message.textContent = state.running ? state.status : `${state.status} ${TEXTS.restartPrompt}`;
   };
 
   const loop = (time) => {
