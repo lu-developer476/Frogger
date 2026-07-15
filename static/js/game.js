@@ -22,7 +22,19 @@
     scenario: document.querySelector('#scenario'),
     visualTheme: document.querySelector('#visualTheme'),
     visualMode: document.querySelector('#visualMode'),
+    visualSettings: document.querySelector('.visual-settings'),
   };
+
+
+  const compactSettingsQuery = window.matchMedia('(max-width: 980px)');
+
+  const syncVisualSettingsVisibility = () => {
+    if (!ui.visualSettings) return;
+    ui.visualSettings.open = !compactSettingsQuery.matches;
+  };
+
+  syncVisualSettingsVisibility();
+  compactSettingsQuery.addEventListener('change', syncVisualSettingsVisibility);
 
   const tile = 72;
   const rows = 10;
