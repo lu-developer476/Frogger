@@ -1,10 +1,10 @@
 
 Escenarios:
-1. Ciudad
-2. Bosque
-3. Nieve
-4. Desierto
-5. Noche
+1. Ciudad: solo tráfico urbano (taxis, motos, buses, camiones y pickups).
+2. Bosque: solo obstáculos naturales y depredadores del bosque.
+3. Nieve: rutas congeladas, témpanos y agua/hielo quebradizo.
+4. Desierto: cruce seco con 4x4, tormentas/rodadores y fauna del desierto.
+5. Ruta, lago y bosque: escenario combinado con todos los tipos de obstáculos y enemigos.
 
 Dificultades:
 - Fácil

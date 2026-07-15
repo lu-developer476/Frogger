@@ -45,12 +45,69 @@
   const frogSizeMap = { small: 32, medium: 38, large: 44 };
 
   const scenarioPalettes = {
-    wetland: { rows: ['#8fbc72', '#bfe3e2', '#bfe3e2', '#bfe3e2', '#d9e9c6', '#c7b39a', '#c7b39a', '#c7b39a', '#a8cf87', '#6f9a58'], waterStripe: 'rgba(255,255,255,.26)', roadStripe: 'rgba(86,61,42,.16)', goal: '#bbf7d0', occupied: '#4ade80', message: 'Cruza el humedal hacia una hoja iluminada. ¡Reuní a las cinco ranas!' },
-    nightMarsh: { rows: ['#1e3a5f', '#0f3b57', '#0f3b57', '#0f3b57', '#1f4d3a', '#2d3748', '#2d3748', '#2d3748', '#315f45', '#123524'], waterStripe: 'rgba(191,219,254,.24)', roadStripe: 'rgba(226,232,240,.14)', goal: '#67e8f9', occupied: '#22d3ee', message: 'Noche cerrada en el pantano: seguí el brillo de las hojas seguras.' },
-    jungleRain: { rows: ['#166534', '#38bdf8', '#38bdf8', '#38bdf8', '#22c55e', '#57534e', '#57534e', '#57534e', '#4ade80', '#14532d'], waterStripe: 'rgba(240,253,250,.34)', roadStripe: 'rgba(250,204,21,.16)', goal: '#86efac', occupied: '#16a34a', message: 'Selva lluviosa: avanzá entre corrientes rápidas y caminos mojados.' },
-    autumnCreek: { rows: ['#a16207', '#93c5fd', '#93c5fd', '#93c5fd', '#d97706', '#92400e', '#92400e', '#92400e', '#ca8a04', '#78350f'], waterStripe: 'rgba(255,247,237,.36)', roadStripe: 'rgba(253,186,116,.2)', goal: '#fde68a', occupied: '#f59e0b', message: 'Arroyo otoñal: saltá entre hojas doradas y troncos resbaladizos.' },
+    city: {
+      name: 'Ciudad',
+      rows: ['#334155', '#475569', '#334155', '#475569', '#64748b', '#475569', '#334155', '#475569', '#22c55e', '#166534'],
+      roadRows: [1, 2, 3, 5, 6, 7],
+      waterRows: [],
+      natureRows: [0, 4, 8, 9],
+      waterStripe: 'rgba(255,255,255,.22)',
+      roadStripe: 'rgba(248,250,252,.24)',
+      goal: '#fde68a',
+      occupied: '#f59e0b',
+      message: 'Ciudad: esquivá tráfico urbano, taxis, buses y motos hasta llegar a las plazas iluminadas.',
+    },
+    forest: {
+      name: 'Bosque',
+      rows: ['#14532d', '#166534', '#15803d', '#166534', '#365314', '#3f6212', '#166534', '#15803d', '#22c55e', '#052e16'],
+      roadRows: [],
+      waterRows: [],
+      natureRows: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      waterStripe: 'rgba(187,247,208,.2)',
+      roadStripe: 'rgba(220,252,231,.16)',
+      goal: '#86efac',
+      occupied: '#16a34a',
+      message: 'Bosque: avanzá entre depredadores naturales, ramas móviles y claros seguros.',
+    },
+    snow: {
+      name: 'Nieve',
+      rows: ['#e0f2fe', '#bae6fd', '#f8fafc', '#cbd5e1', '#e2e8f0', '#94a3b8', '#f1f5f9', '#cbd5e1', '#dbeafe', '#eff6ff'],
+      roadRows: [5, 7],
+      waterRows: [1, 3],
+      natureRows: [2, 4, 6, 8, 9],
+      waterStripe: 'rgba(255,255,255,.55)',
+      roadStripe: 'rgba(15,23,42,.16)',
+      goal: '#bfdbfe',
+      occupied: '#60a5fa',
+      message: 'Nieve: cruzá hielo quebradizo y rutas congeladas con poca visibilidad.',
+    },
+    desert: {
+      name: 'Desierto',
+      rows: ['#92400e', '#f59e0b', '#d97706', '#fbbf24', '#b45309', '#78350f', '#f59e0b', '#d97706', '#fde68a', '#92400e'],
+      roadRows: [5],
+      waterRows: [],
+      natureRows: [1, 2, 3, 4, 6, 7, 8, 9],
+      waterStripe: 'rgba(254,243,199,.22)',
+      roadStripe: 'rgba(254,215,170,.24)',
+      goal: '#fef3c7',
+      occupied: '#f97316',
+      message: 'Desierto: evitá escorpiones, buitres y tormentas de arena en un cruce seco.',
+    },
+    mixed: {
+      name: 'Ruta, lago y bosque',
+      rows: ['#166534', '#38bdf8', '#38bdf8', '#38bdf8', '#22c55e', '#57534e', '#57534e', '#57534e', '#4ade80', '#14532d'],
+      roadRows: [5, 6, 7],
+      waterRows: [1, 2, 3],
+      natureRows: [0, 4, 8, 9],
+      waterStripe: 'rgba(240,253,250,.34)',
+      roadStripe: 'rgba(250,204,21,.16)',
+      goal: '#86efac',
+      occupied: '#16a34a',
+      message: 'Ruta, lago y bosque: el desafío total combina vehículos, troncos y depredadores.',
+    },
   };
-  const scenarioConfig = () => scenarioPalettes[ui.scenario?.value] || scenarioPalettes.wetland;
+  const scenarioConfig = () => scenarioPalettes[ui.scenario?.value] || scenarioPalettes.mixed;
+
   const predatorProfiles = {
     snake: { ...frogProfiles.poisonDart, body: '#84cc16', belly: '#ecfccb', spot: '#365314', pattern: 'stripe' },
     heron: { ...frogProfiles.glass, body: '#e5e7eb', belly: '#f8fafc', eye: '#f59e0b', spot: '#94a3b8', pattern: 'flanks' },
@@ -63,21 +120,60 @@
     size: frogSizeMap[ui.frogSize?.value] || frogSizeMap.medium,
   });
 
-  const lanes = [
-    { row: 7, type: 'vehicle', kind: 'taxi', label: 'TAXI', color: '#facc15', speed: 2.4, size: 1.1, gaps: [0, 4, 8] },
-    { row: 7, type: 'vehicle', kind: 'motorcycle', label: 'MOTO', color: '#38bdf8', speed: 3.3, size: 0.62, gaps: [2, 6] },
-    { row: 6, type: 'vehicle', kind: 'truck', label: 'CAMIÓN', color: '#ef4444', speed: -2.55, size: 1.7, gaps: [1, 6] },
-    { row: 6, type: 'predator', kind: 'snake', label: 'SERPIENTE', color: '#84cc16', speed: -3.15, size: 0.92, gaps: [4, 9] },
-    { row: 5, type: 'vehicle', kind: 'van', label: 'FURGÓN', color: '#f97316', speed: 2.95, size: 1.35, gaps: [0, 5] },
-    { row: 5, type: 'vehicle', kind: 'pickup', label: 'PICKUP', color: '#a78bfa', speed: 3.45, size: 1.05, gaps: [3, 8] },
-    { row: 4, type: 'predator', kind: 'heron', label: 'GARZA', color: '#e5e7eb', speed: -2.25, size: 0.92, gaps: [0, 4, 8] },
-    { row: 3, type: 'log', kind: 'log', color: '#a16207', speed: -2, size: 1.9, gaps: [0, 5] },
-    { row: 3, type: 'predator', kind: 'otter', label: 'NUTRIA', color: '#78350f', speed: -2.75, size: 0.88, gaps: [3, 8] },
-    { row: 2, type: 'log', kind: 'log', color: '#92400e', speed: 2.5, size: 1.6, gaps: [2, 7] },
-    { row: 2, type: 'predator', kind: 'fish', label: 'PEZ', color: '#fb7185', speed: 3.05, size: 0.82, gaps: [0, 5] },
-    { row: 1, type: 'log', kind: 'log', color: '#b45309', speed: -3, size: 2.1, gaps: [1, 6] },
-    { row: 1, type: 'predator', kind: 'owl', label: 'BÚHO', color: '#c084fc', speed: -3.35, size: 0.78, gaps: [4, 9] },
-  ];
+  const scenarioLanes = {
+    city: [
+      { row: 7, type: 'vehicle', kind: 'taxi', label: 'TAXI', color: '#facc15', speed: 2.7, size: 1.05, gaps: [0, 4, 8] },
+      { row: 7, type: 'vehicle', kind: 'motorcycle', label: 'MOTO', color: '#38bdf8', speed: 3.5, size: 0.62, gaps: [2, 6] },
+      { row: 6, type: 'vehicle', kind: 'bus', label: 'BUS', color: '#f97316', speed: -2.25, size: 1.85, gaps: [1, 6] },
+      { row: 5, type: 'vehicle', kind: 'truck', label: 'CAMIÓN', color: '#ef4444', speed: 2.45, size: 1.7, gaps: [0, 5] },
+      { row: 3, type: 'vehicle', kind: 'van', label: 'FURGÓN', color: '#a78bfa', speed: -2.9, size: 1.3, gaps: [2, 7] },
+      { row: 2, type: 'vehicle', kind: 'pickup', label: 'PICKUP', color: '#22c55e', speed: 3.15, size: 1.08, gaps: [0, 5] },
+      { row: 1, type: 'vehicle', kind: 'taxi', label: 'TAXI', color: '#fde047', speed: -3.35, size: 0.95, gaps: [3, 8] },
+    ],
+    forest: [
+      { row: 7, type: 'predator', kind: 'snake', label: 'SERPIENTE', color: '#84cc16', speed: 2.4, size: 0.95, gaps: [0, 4, 8] },
+      { row: 6, type: 'predator', kind: 'owl', label: 'BÚHO', color: '#c084fc', speed: -2.65, size: 0.82, gaps: [2, 6] },
+      { row: 5, type: 'log', kind: 'branch', color: '#854d0e', speed: 2.05, size: 1.35, gaps: [1, 6] },
+      { row: 4, type: 'predator', kind: 'heron', label: 'GARZA', color: '#e5e7eb', speed: -2.15, size: 0.9, gaps: [0, 5] },
+      { row: 3, type: 'predator', kind: 'otter', label: 'NUTRIA', color: '#78350f', speed: 2.7, size: 0.88, gaps: [3, 8] },
+      { row: 2, type: 'log', kind: 'branch', color: '#a16207', speed: -2.35, size: 1.2, gaps: [0, 5] },
+      { row: 1, type: 'predator', kind: 'snake', label: 'VÍBORA', color: '#65a30d', speed: 3, size: 0.86, gaps: [2, 7] },
+    ],
+    snow: [
+      { row: 7, type: 'vehicle', kind: 'snowplow', label: 'QUITA', color: '#f97316', speed: 2.15, size: 1.55, gaps: [0, 5] },
+      { row: 5, type: 'vehicle', kind: 'truck', label: 'CAMIÓN', color: '#64748b', speed: -2.35, size: 1.65, gaps: [2, 7] },
+      { row: 3, type: 'log', kind: 'ice', color: '#e0f2fe', speed: 2.25, size: 1.45, gaps: [0, 4, 8] },
+      { row: 3, type: 'predator', kind: 'fish', label: 'PEZ', color: '#38bdf8', speed: 2.75, size: 0.8, gaps: [2, 7] },
+      { row: 1, type: 'log', kind: 'ice', color: '#bfdbfe', speed: -2.7, size: 1.8, gaps: [1, 6] },
+      { row: 1, type: 'predator', kind: 'owl', label: 'BÚHO', color: '#f8fafc', speed: -3.05, size: 0.78, gaps: [4, 9] },
+    ],
+    desert: [
+      { row: 7, type: 'predator', kind: 'snake', label: 'SERPIENTE', color: '#a3e635', speed: 2.85, size: 0.9, gaps: [0, 5] },
+      { row: 6, type: 'predator', kind: 'owl', label: 'BUITRE', color: '#92400e', speed: -3.15, size: 0.82, gaps: [2, 7] },
+      { row: 5, type: 'vehicle', kind: 'pickup', label: '4X4', color: '#f97316', speed: 2.55, size: 1.25, gaps: [1, 6] },
+      { row: 4, type: 'predator', kind: 'snake', label: 'ESCORPIÓN', color: '#451a03', speed: -2.45, size: 0.78, gaps: [0, 4, 8] },
+      { row: 3, type: 'log', kind: 'tumbleweed', color: '#facc15', speed: 2.95, size: 0.85, gaps: [3, 8] },
+      { row: 2, type: 'predator', kind: 'heron', label: 'COYOTE', color: '#d97706', speed: -2.75, size: 0.88, gaps: [1, 6] },
+      { row: 1, type: 'log', kind: 'cactus', color: '#65a30d', speed: 2.1, size: 1.15, gaps: [0, 5] },
+    ],
+    mixed: [
+      { row: 7, type: 'vehicle', kind: 'taxi', label: 'TAXI', color: '#facc15', speed: 2.4, size: 1.1, gaps: [0, 4, 8] },
+      { row: 7, type: 'vehicle', kind: 'motorcycle', label: 'MOTO', color: '#38bdf8', speed: 3.3, size: 0.62, gaps: [2, 6] },
+      { row: 6, type: 'vehicle', kind: 'truck', label: 'CAMIÓN', color: '#ef4444', speed: -2.55, size: 1.7, gaps: [1, 6] },
+      { row: 6, type: 'predator', kind: 'snake', label: 'SERPIENTE', color: '#84cc16', speed: -3.15, size: 0.92, gaps: [4, 9] },
+      { row: 5, type: 'vehicle', kind: 'van', label: 'FURGÓN', color: '#f97316', speed: 2.95, size: 1.35, gaps: [0, 5] },
+      { row: 5, type: 'vehicle', kind: 'pickup', label: 'PICKUP', color: '#a78bfa', speed: 3.45, size: 1.05, gaps: [3, 8] },
+      { row: 4, type: 'predator', kind: 'heron', label: 'GARZA', color: '#e5e7eb', speed: -2.25, size: 0.92, gaps: [0, 4, 8] },
+      { row: 3, type: 'log', kind: 'log', color: '#a16207', speed: -2, size: 1.9, gaps: [0, 5] },
+      { row: 3, type: 'predator', kind: 'otter', label: 'NUTRIA', color: '#78350f', speed: -2.75, size: 0.88, gaps: [3, 8] },
+      { row: 2, type: 'log', kind: 'log', color: '#92400e', speed: 2.5, size: 1.6, gaps: [2, 7] },
+      { row: 2, type: 'predator', kind: 'fish', label: 'PEZ', color: '#fb7185', speed: 3.05, size: 0.82, gaps: [0, 5] },
+      { row: 1, type: 'log', kind: 'log', color: '#b45309', speed: -3, size: 2.1, gaps: [1, 6] },
+      { row: 1, type: 'predator', kind: 'owl', label: 'BÚHO', color: '#c084fc', speed: -3.35, size: 0.78, gaps: [4, 9] },
+    ],
+  };
+  const lanesForScenario = () => scenarioLanes[ui.scenario?.value] || scenarioLanes.mixed;
+
   const goalColumns = [1, 3, 5, 7, 9];
   let state;
   let animationFrame;
@@ -102,7 +198,7 @@
   const buildObstacles = (level) => {
     const d = difficulty();
     const boost = 1 + Math.min(level - 1, 12) * 0.055;
-    return lanes.flatMap((lane) => lane.gaps.map((gap, index) => ({
+    return lanesForScenario().flatMap((lane) => lane.gaps.map((gap, index) => ({
       ...lane,
       x: (gap * tile + index * 18) % (canvas.width + tile),
       y: lane.row * tile + 14,
@@ -151,20 +247,25 @@
     scenario.rows.forEach((color, row) => {
       ctx.fillStyle = color;
       ctx.fillRect(0, row * tile, canvas.width, tile);
-      ctx.fillStyle = row === 5 || row === 6 || row === 7 ? scenario.roadStripe : scenario.waterStripe;
+      ctx.fillStyle = scenario.roadRows.includes(row) ? scenario.roadStripe : scenario.waterStripe;
       for (let x = row % 2 ? 0 : 36; x < canvas.width; x += tile) ctx.fillRect(x, row * tile + 8, 34, 4);
     });
-    ctx.fillStyle = 'rgba(255,254,250,.58)';
-    for (let x = 0; x < canvas.width; x += tile) ctx.fillRect(x + 34, tile * 5, 4, tile * 3);
-    ctx.fillStyle = 'rgba(47,81,49,.18)';
-    for (let x = 0; x < canvas.width; x += tile) {
-      ctx.fillRect(x + 10, tile * 4 + 12, 24, 8);
-      ctx.fillStyle = 'rgba(111,154,88,.78)';
-      ctx.beginPath();
-      ctx.arc(x + 60, tile * 4 + 17, 8, 0, Math.PI * 2);
-      ctx.fill();
+    scenario.roadRows.forEach((row) => {
+      ctx.fillStyle = 'rgba(255,254,250,.5)';
+      for (let x = 0; x < canvas.width; x += tile) ctx.fillRect(x + 34, tile * row + 31, 28, 4);
+    });
+    scenario.natureRows.forEach((row) => {
+      if (row === 0) return;
       ctx.fillStyle = 'rgba(47,81,49,.18)';
-    }
+      for (let x = 0; x < canvas.width; x += tile) {
+        ctx.fillRect(x + 10, tile * row + 12, 24, 8);
+        ctx.fillStyle = 'rgba(111,154,88,.78)';
+        ctx.beginPath();
+        ctx.arc(x + 60, tile * row + 17, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(47,81,49,.18)';
+      }
+    });
     goalColumns.forEach((col) => {
       const occupied = state?.goals?.has(col);
       const x = col * tile + 10;
@@ -336,7 +437,7 @@
     state.timeLeft = difficulty().time + Math.min(state.level * 2, 14);
     state.obstacles = buildObstacles(state.level);
     state.bonus = spawnBonus();
-    state.status = '¡Humedal completo! El bosque se mueve más rápido y el bonus sube.';
+    state.status = `¡${scenarioConfig().name} completo! El siguiente nivel se mueve más rápido y el bonus sube.`;
   };
 
   const completeGoal = () => {
@@ -390,7 +491,7 @@
         }
       }
     });
-    if ([1, 2, 3].includes(state.frog.row) && !onLog) loseLife('Caíste al arroyo. Buscá troncos y hojas seguras.');
+    if (scenarioConfig().waterRows.includes(state.frog.row) && !onLog) loseLife('Caíste al agua o al hielo. Buscá troncos, témpanos y zonas seguras.');
     if (state.frog.x < 0 || state.frog.x + state.frog.size > canvas.width) loseLife('Te saliste del tablero.');
     collectBonus();
     if (state.bonus && !state.bonus.collected) {
