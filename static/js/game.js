@@ -109,11 +109,14 @@
   const scenarioConfig = () => scenarioPalettes[ui.scenario?.value] || scenarioPalettes.mixed;
 
   const predatorProfiles = {
-    snake: { ...frogProfiles.poisonDart, body: '#84cc16', belly: '#ecfccb', spot: '#365314', pattern: 'stripe' },
-    heron: { ...frogProfiles.glass, body: '#e5e7eb', belly: '#f8fafc', eye: '#f59e0b', spot: '#94a3b8', pattern: 'flanks' },
-    otter: { ...frogProfiles.tomato, body: '#78350f', belly: '#d97706', eye: '#fef3c7', spot: '#451a03', pattern: 'soft' },
-    fish: { ...frogProfiles.redEye, body: '#fb7185', belly: '#fecdd3', eye: '#bfdbfe', spot: '#be123c', pattern: 'spots' },
-    owl: { ...frogProfiles.greenTree, body: '#c084fc', belly: '#f3e8ff', eye: '#fde047', spot: '#6b21a8', pattern: 'flanks' },
+    snake: { body: '#84cc16', belly: '#ecfccb', eye: '#fefce8', pupil: '#111827', spot: '#365314', accent: '#bef264', shape: 'serpent' },
+    heron: { body: '#e5e7eb', belly: '#f8fafc', eye: '#f59e0b', pupil: '#111827', spot: '#94a3b8', accent: '#f97316', shape: 'wader' },
+    otter: { body: '#78350f', belly: '#d97706', eye: '#fef3c7', pupil: '#111827', spot: '#451a03', accent: '#fbbf24', shape: 'mammal' },
+    fish: { body: '#38bdf8', belly: '#bfdbfe', eye: '#f8fafc', pupil: '#111827', spot: '#0e7490', accent: '#fb7185', shape: 'fish' },
+    owl: { body: '#92400e', belly: '#fde68a', eye: '#fde047', pupil: '#111827', spot: '#451a03', accent: '#fef3c7', shape: 'raptor' },
+    vulture: { body: '#57534e', belly: '#a8a29e', eye: '#fde047', pupil: '#111827', spot: '#292524', accent: '#ef4444', shape: 'vulture' },
+    scorpion: { body: '#451a03', belly: '#92400e', eye: '#fef3c7', pupil: '#111827', spot: '#1c1917', accent: '#f59e0b', shape: 'scorpion' },
+    coyote: { body: '#d97706', belly: '#fed7aa', eye: '#fef3c7', pupil: '#111827', spot: '#78350f', accent: '#fbbf24', shape: 'canid' },
   };
   const frogConfig = () => ({
     ...(frogProfiles[ui.frogSpecies?.value] || frogProfiles.greenTree),
@@ -149,11 +152,11 @@
     ],
     desert: [
       { row: 7, type: 'predator', kind: 'snake', label: 'SERPIENTE', color: '#a3e635', speed: 2.85, size: 0.9, gaps: [0, 5] },
-      { row: 6, type: 'predator', kind: 'owl', label: 'BUITRE', color: '#92400e', speed: -3.15, size: 0.82, gaps: [2, 7] },
+      { row: 6, type: 'predator', kind: 'vulture', label: 'BUITRE', color: '#92400e', speed: -3.15, size: 0.82, gaps: [2, 7] },
       { row: 5, type: 'vehicle', kind: 'pickup', label: '4X4', color: '#f97316', speed: 2.55, size: 1.25, gaps: [1, 6] },
-      { row: 4, type: 'predator', kind: 'snake', label: 'ESCORPIÓN', color: '#451a03', speed: -2.45, size: 0.78, gaps: [0, 4, 8] },
+      { row: 4, type: 'predator', kind: 'scorpion', label: 'ESCORPIÓN', color: '#451a03', speed: -2.45, size: 0.78, gaps: [0, 4, 8] },
       { row: 3, type: 'log', kind: 'tumbleweed', color: '#facc15', speed: 2.95, size: 0.85, gaps: [3, 8] },
-      { row: 2, type: 'predator', kind: 'heron', label: 'COYOTE', color: '#d97706', speed: -2.75, size: 0.88, gaps: [1, 6] },
+      { row: 2, type: 'predator', kind: 'coyote', label: 'COYOTE', color: '#d97706', speed: -2.75, size: 0.88, gaps: [1, 6] },
       { row: 1, type: 'log', kind: 'cactus', color: '#65a30d', speed: 2.1, size: 1.15, gaps: [0, 5] },
     ],
     mixed: [
@@ -301,9 +304,8 @@
       ctx.fillText(obstacle.label, obstacle.x + obstacle.width / 2, obstacle.y + 29);
       ctx.textAlign = 'start';
     } else if (obstacle.type === 'predator') {
-      const predatorSize = Math.min(34, obstacle.height + 2);
-      renderFrog(ctx, obstacle.x + obstacle.width / 2 - predatorSize / 2, obstacle.y + 1, predatorSize, 0, predatorProfiles[obstacle.kind] || frogProfiles.greenTree);
-      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      renderPredator(ctx, obstacle);
+      ctx.fillStyle = 'rgba(255,255,255,.88)';
       ctx.font = '700 9px system-ui';
       ctx.textAlign = 'center';
       ctx.fillText(obstacle.label, obstacle.x + obstacle.width / 2, obstacle.y + obstacle.height - 2);
@@ -327,6 +329,103 @@
     ctx.textAlign = 'center';
     ctx.fillText(state.bonus.type === 'clock' ? '+T' : '+', x, y + 6);
     ctx.textAlign = 'start';
+  };
+
+  const renderPredatorEye = (targetCtx, x, y, size, profile) => {
+    targetCtx.fillStyle = profile.eye;
+    targetCtx.beginPath();
+    targetCtx.arc(x, y, size, 0, Math.PI * 2);
+    targetCtx.fill();
+    targetCtx.fillStyle = profile.pupil;
+    targetCtx.beginPath();
+    targetCtx.arc(x + size * 0.2, y, size * 0.45, 0, Math.PI * 2);
+    targetCtx.fill();
+  };
+
+  const renderPredator = (targetCtx, obstacle) => {
+    const profile = predatorProfiles[obstacle.kind] || predatorProfiles.snake;
+    const { x, y, width, height, speed } = obstacle;
+    const direction = speed >= 0 ? 1 : -1;
+    const cx = x + width / 2;
+    const cy = y + height / 2;
+    targetCtx.save();
+    targetCtx.translate(cx, cy);
+    targetCtx.scale(direction, 1);
+    targetCtx.translate(-cx, -cy);
+    targetCtx.lineCap = 'round';
+    targetCtx.lineJoin = 'round';
+
+    if (profile.shape === 'serpent') {
+      targetCtx.strokeStyle = profile.body;
+      targetCtx.lineWidth = 16;
+      targetCtx.beginPath();
+      targetCtx.moveTo(x + 10, cy + 3);
+      targetCtx.bezierCurveTo(x + width * 0.28, y + 2, x + width * 0.48, y + height - 2, x + width * 0.7, cy);
+      targetCtx.bezierCurveTo(x + width * 0.82, y + 7, x + width - 22, y + 8, x + width - 9, cy - 2);
+      targetCtx.stroke();
+      targetCtx.strokeStyle = profile.spot;
+      targetCtx.lineWidth = 3;
+      targetCtx.beginPath();
+      targetCtx.moveTo(x + 18, cy + 1);
+      targetCtx.bezierCurveTo(x + width * 0.36, y + 11, x + width * 0.55, y + 27, x + width - 18, cy - 4);
+      targetCtx.stroke();
+      targetCtx.fillStyle = profile.accent;
+      targetCtx.beginPath();
+      targetCtx.moveTo(x + width - 6, cy - 2);
+      targetCtx.lineTo(x + width + 8, cy - 9);
+      targetCtx.lineTo(x + width + 4, cy + 2);
+      targetCtx.fill();
+      renderPredatorEye(targetCtx, x + width - 24, cy - 7, 3.4, profile);
+    } else if (profile.shape === 'wader') {
+      targetCtx.strokeStyle = profile.spot;
+      targetCtx.lineWidth = 4;
+      targetCtx.beginPath();
+      targetCtx.moveTo(cx + 10, y + height - 5); targetCtx.lineTo(cx + 22, y + height + 8);
+      targetCtx.moveTo(cx - 2, y + height - 5); targetCtx.lineTo(cx - 13, y + height + 8);
+      targetCtx.stroke();
+      targetCtx.fillStyle = profile.body;
+      targetCtx.beginPath(); targetCtx.ellipse(cx - 3, cy + 3, width * 0.2, height * 0.34, 0, 0, Math.PI * 2); targetCtx.fill();
+      targetCtx.strokeStyle = profile.body; targetCtx.lineWidth = 9;
+      targetCtx.beginPath(); targetCtx.moveTo(cx + 9, cy - 2); targetCtx.quadraticCurveTo(cx + 28, y - 3, x + width - 22, y + 8); targetCtx.stroke();
+      targetCtx.fillStyle = profile.accent;
+      targetCtx.beginPath(); targetCtx.moveTo(x + width - 21, y + 6); targetCtx.lineTo(x + width + 6, y + 10); targetCtx.lineTo(x + width - 20, y + 15); targetCtx.fill();
+      renderPredatorEye(targetCtx, x + width - 25, y + 6, 3.2, profile);
+    } else if (profile.shape === 'fish') {
+      targetCtx.fillStyle = profile.body;
+      targetCtx.beginPath(); targetCtx.ellipse(cx, cy, width * 0.28, height * 0.36, 0, 0, Math.PI * 2); targetCtx.fill();
+      targetCtx.fillStyle = profile.accent;
+      targetCtx.beginPath(); targetCtx.moveTo(x + 12, cy); targetCtx.lineTo(x - 6, y + 7); targetCtx.lineTo(x - 6, y + height - 7); targetCtx.fill();
+      targetCtx.fillStyle = profile.belly; targetCtx.fillRect(cx - width * 0.09, cy + 4, width * 0.24, 4);
+      renderPredatorEye(targetCtx, x + width - 24, cy - 6, 3.3, profile);
+    } else if (profile.shape === 'scorpion') {
+      targetCtx.fillStyle = profile.body;
+      targetCtx.beginPath(); targetCtx.ellipse(cx, cy + 3, width * 0.22, height * 0.27, 0, 0, Math.PI * 2); targetCtx.fill();
+      targetCtx.strokeStyle = profile.spot; targetCtx.lineWidth = 4;
+      for (let i = -2; i <= 2; i += 1) { targetCtx.beginPath(); targetCtx.moveTo(cx + i * 9, cy + 9); targetCtx.lineTo(cx + i * 11, y + height + 5); targetCtx.stroke(); }
+      targetCtx.strokeStyle = profile.body; targetCtx.lineWidth = 7;
+      targetCtx.beginPath(); targetCtx.moveTo(cx - 20, cy); targetCtx.quadraticCurveTo(x + 10, y - 5, x + 28, y + 6); targetCtx.stroke();
+      targetCtx.fillStyle = profile.accent; targetCtx.beginPath(); targetCtx.arc(x + 27, y + 7, 5, 0, Math.PI * 2); targetCtx.fill();
+      renderPredatorEye(targetCtx, x + width - 18, cy - 4, 2.8, profile);
+    } else {
+      const bird = profile.shape === 'raptor' || profile.shape === 'vulture';
+      targetCtx.fillStyle = profile.body;
+      targetCtx.beginPath(); targetCtx.ellipse(cx, cy + 2, width * 0.22, height * 0.34, 0, 0, Math.PI * 2); targetCtx.fill();
+      targetCtx.fillStyle = profile.belly;
+      targetCtx.beginPath(); targetCtx.ellipse(cx + (bird ? 0 : 5), cy + 5, width * 0.11, height * 0.2, 0, 0, Math.PI * 2); targetCtx.fill();
+      if (bird) {
+        targetCtx.fillStyle = profile.spot;
+        targetCtx.beginPath(); targetCtx.moveTo(cx - 7, cy); targetCtx.lineTo(x + 8, y + 7); targetCtx.lineTo(cx - 24, y + height - 2); targetCtx.fill();
+        targetCtx.beginPath(); targetCtx.moveTo(cx + 7, cy); targetCtx.lineTo(x + width - 8, y + 7); targetCtx.lineTo(cx + 24, y + height - 2); targetCtx.fill();
+        targetCtx.fillStyle = profile.accent; targetCtx.beginPath(); targetCtx.moveTo(cx + 8, y + 8); targetCtx.lineTo(cx + 20, y + 13); targetCtx.lineTo(cx + 8, y + 17); targetCtx.fill();
+        renderPredatorEye(targetCtx, cx - 6, y + 10, 4, profile); renderPredatorEye(targetCtx, cx + 7, y + 10, 4, profile);
+      } else {
+        targetCtx.fillStyle = profile.body; targetCtx.beginPath(); targetCtx.ellipse(x + width - 22, cy - 3, width * 0.12, height * 0.22, 0, 0, Math.PI * 2); targetCtx.fill();
+        targetCtx.fillStyle = profile.spot; targetCtx.beginPath(); targetCtx.moveTo(x + width - 12, cy - 9); targetCtx.lineTo(x + width + 2, cy - 4); targetCtx.lineTo(x + width - 12, cy + 1); targetCtx.fill();
+        targetCtx.strokeStyle = profile.spot; targetCtx.lineWidth = 5; targetCtx.beginPath(); targetCtx.moveTo(x + 20, cy + 12); targetCtx.lineTo(x + 8, cy + 18); targetCtx.moveTo(cx, cy + 14); targetCtx.lineTo(cx - 6, cy + 21); targetCtx.stroke();
+        renderPredatorEye(targetCtx, x + width - 24, cy - 7, 3.2, profile);
+      }
+    }
+    targetCtx.restore();
   };
 
   const renderFrog = (targetCtx, x, y, size, shield = 0, profile = frogConfig()) => {
