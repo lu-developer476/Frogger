@@ -20,6 +20,7 @@
     frogPreview: document.querySelector('#frogPreview'),
     frogSpeciesInfo: document.querySelector('#frogSpeciesInfo'),
     scenario: document.querySelector('#scenario'),
+    visualTheme: document.querySelector('#visualTheme'),
   };
 
   const tile = 72;
@@ -104,6 +105,13 @@
     },
   };
   const scenarioConfig = () => scenarioPalettes[ui.scenario?.value] || scenarioPalettes.mixed;
+  const visualThemes = ['quest', 'nocturne', 'sunset'];
+  const applyVisualTheme = (theme) => {
+    const selected = visualThemes.includes(theme) ? theme : 'quest';
+    document.body.dataset.theme = selected;
+    if (ui.visualTheme) ui.visualTheme.value = selected;
+    localStorage.setItem('froggerVisualTheme', selected);
+  };
 
   const predatorProfiles = {
     snake: { body: '#84cc16', belly: '#ecfccb', eye: '#fefce8', pupil: '#111827', spot: '#365314', accent: '#bef264', shape: 'serpent' },
@@ -670,9 +678,11 @@
   ui.difficulty?.addEventListener('change', drawFrogPreview);
   ui.frogSpecies?.addEventListener('change', drawFrogPreview);
   ui.scenario?.addEventListener('change', () => { if (state) state.status = scenarioConfig().message; draw(); });
+  ui.visualTheme?.addEventListener('change', () => applyVisualTheme(ui.visualTheme.value));
   ui.guide?.addEventListener('click', () => {
     if (typeof ui.guideDialog?.showModal === 'function') ui.guideDialog.showModal();
   });
+  applyVisualTheme(localStorage.getItem('froggerVisualTheme') || ui.visualTheme?.value);
   ui.best.textContent = localStorage.getItem('froggerBest') || '0';
   state = freshState();
   state.running = false;
