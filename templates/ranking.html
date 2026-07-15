@@ -4,24 +4,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ranking · Frogger Rally</title>
+  <title>{{ texts.ranking.title }}</title>
   {% include "includes/favicons.html" %}
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-  <main class="app-shell ranking-shell" aria-label="Ranking de Frogger Rally">
-    <section class="top-bar" aria-label="Navegación del ranking">
-      <div class="brand-lockup" aria-label="Identidad del juego"><span class="brand-icon">🐸</span><span><strong>Frogger Rally</strong><small>La rana del bosque</small></span></div>
-      <nav class="nav-links" aria-label="Secciones"><a href="{% url 'index' %}">Volver al juego</a></nav>
+  <main class="app-shell ranking-shell" aria-label="{{ texts.ranking.main_aria }}">
+    <section class="top-bar" aria-label="{{ texts.ranking.topbar_aria }}">
+      <div class="brand-lockup" aria-label="{{ texts.index.brand_aria }}"><span class="brand-icon">🐸</span><span><strong>{{ texts.app.name }}</strong><small>{{ texts.app.tagline }}</small></span></div>
+      <nav class="nav-links" aria-label="{{ texts.ranking.nav_aria }}"><a href="{% url 'index' %}">{{ texts.ranking.back_link }}</a></nav>
     </section>
     <section class="ranking-card">
-      <p class="eyebrow">Ranking</p>
-      <h1>Mejores partidas</h1>
-      <p>Tu mejor puntaje local aparece debajo. Próximamente se integrará un ranking global persistente.</p>
-      <div class="ranking-list"><span>Mejor puntaje local</span><strong id="rankingBest">0</strong></div>
+      <p class="eyebrow">{{ texts.ranking.eyebrow }}</p>
+      <h1>{{ texts.ranking.heading }}</h1>
+      <p>{{ texts.ranking.description }}</p>
+      <div class="ranking-list"><span>{{ texts.ranking.best_local }}</span><strong id="rankingBest">0</strong></div>
     </section>
   </main>
-  <footer class="site-footer">© 2026 Todos los derechos reservados • Built with Python &amp; Django • UX/UI Interface • Deployed on Render ®</footer>
+  <footer class="site-footer">{{ texts.app.footer }}</footer>
   <script>
     document.querySelector('#rankingBest').textContent = localStorage.getItem('froggerBest') || '0';
   </script>

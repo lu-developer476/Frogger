@@ -4,70 +4,66 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Frogger Rally: aventura arcade con estética de quest, reflejos, estrategia y acción en cada cruce.">
-  <title>Frogger Rally · Quest</title>
+  <meta name="description" content="{{ texts.index.meta_description }}">
+  <title>{{ texts.index.title }}</title>
   {% include "includes/favicons.html" %}
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-  <main class="app-shell" aria-label="Frogger Rally con estética animalista">
-    <section class="top-bar" aria-label="Opciones del juego">
-      <div class="brand-lockup" aria-label="Identidad del juego"><span class="brand-icon">🐸</span><span><strong>Frogger Rally</strong><small>La rana del bosque</small></span></div>
-      <nav class="nav-links" aria-label="Secciones de Frogger Rally"><a href="{% url 'ranking' %}">Ranking</a><button id="guideButton" class="nav-button" type="button">Guía</button></nav>
+  <main class="app-shell" aria-label="{{ texts.index.main_aria }}">
+    <section class="top-bar" aria-label="{{ texts.index.topbar_aria }}">
+      <div class="brand-lockup" aria-label="{{ texts.index.brand_aria }}"><span class="brand-icon">🐸</span><span><strong>{{ texts.app.name }}</strong><small>{{ texts.app.tagline }}</small></span></div>
+      <nav class="nav-links" aria-label="{{ texts.index.nav_aria }}"><a href="{% url 'ranking' %}">{{ texts.index.ranking_link }}</a><button id="guideButton" class="nav-button" type="button">{{ texts.index.guide_button }}</button></nav>
       <details class="visual-settings" open>
-        <summary>Ajustes visuales</summary>
+        <summary>{{ texts.index.visual_settings }}</summary>
         <div class="visual-settings-panel">
-          <label class="theme-control" for="visualTheme"><span>Tema visual</span><select id="visualTheme" aria-label="Tema visual"><option value="quest" selected>Quest</option><option value="nocturne">Nocturno</option><option value="sunset">Atardecer</option></select></label>
-          <label class="theme-control" for="visualMode"><span>Modo gráfico</span><select id="visualMode" aria-label="Modo gráfico"><option value="illustrated" selected>Ilustrado</option><option value="emoji">Emojis</option></select></label>
+          <label class="theme-control" for="visualTheme"><span>{{ texts.index.visual_theme }}</span><select id="visualTheme" aria-label="{{ texts.index.visual_theme }}"><option value="quest" selected>{{ texts.index.theme_quest }}</option><option value="nocturne">{{ texts.index.theme_nocturne }}</option><option value="sunset">{{ texts.index.theme_sunset }}</option></select></label>
+          <label class="theme-control" for="visualMode"><span>{{ texts.index.visual_mode }}</span><select id="visualMode" aria-label="{{ texts.index.visual_mode }}"><option value="illustrated" selected>{{ texts.index.mode_illustrated }}</option><option value="emoji">{{ texts.index.mode_emoji }}</option></select></label>
         </div>
       </details>
-      <div class="play-control" aria-label="Iniciar juego y configurar partida">
-        <button id="startButton" type="button">Jugar ahora</button>
+      <div class="play-control" aria-label="{{ texts.index.play_aria }}">
+        <button id="startButton" type="button">{{ texts.index.start_button }}</button>
       </div>
     </section>
-    <section class="hero hero-compact" aria-label="Presentación animalista de Frogger Rally">
-      <div class="hero-pond" aria-hidden="true"><span class="sun"></span><span class="frog-mascot">🐸</span><span class="score-chip">🪰 +100</span><span class="combo-chip">Combo x4</span></div>
+    <section class="hero hero-compact" aria-label="{{ texts.index.hero_aria }}">
+      <div class="hero-pond" aria-hidden="true"><span class="sun"></span><span class="frog-mascot">🐸</span><span class="score-chip">🪰 +100</span><span class="combo-chip">{{ texts.index.combo_chip }}</span></div>
     </section>
     <section id="ranking" class="hud" aria-live="polite">
-      <span>Nivel <strong id="level">1</strong></span><span>Puntaje <strong id="score">0</strong></span><span>Vidas <strong id="lives">3</strong></span><span>Tiempo <strong id="timeLeft">45</strong></span><span>Racha <strong id="streak">0</strong></span><span>Mejor <strong id="bestScore">0</strong></span>
+      <span>{{ texts.index.hud_level }} <strong id="level">1</strong></span><span>{{ texts.index.hud_score }} <strong id="score">0</strong></span><span>{{ texts.index.hud_lives }} <strong id="lives">3</strong></span><span>{{ texts.index.hud_time }} <strong id="timeLeft">45</strong></span><span>{{ texts.index.hud_streak }} <strong id="streak">0</strong></span><span>{{ texts.index.hud_best }} <strong id="bestScore">0</strong></span>
     </section>
     <section id="game-card" class="game-card">
-      <canvas id="game" width="720" height="720" aria-label="Tablero del juego Frogger Rally con estética animalista"></canvas>
-      <div class="touch-controls" aria-label="Controles táctiles con flechas">
-        <button type="button" data-move="0,-1" aria-label="Mover arriba">↑</button>
-        <button type="button" data-move="-1,0" aria-label="Mover izquierda">←</button>
-        <button type="button" data-move="0,1" aria-label="Mover abajo">↓</button>
-        <button type="button" data-move="1,0" aria-label="Mover derecha">→</button>
+      <canvas id="game" width="720" height="720" aria-label="{{ texts.index.canvas_aria }}"></canvas>
+      <div class="touch-controls" aria-label="{{ texts.index.touch_aria }}">
+        <button type="button" data-move="0,-1" aria-label="{{ texts.index.move_up }}">↑</button>
+        <button type="button" data-move="-1,0" aria-label="{{ texts.index.move_left }}">←</button>
+        <button type="button" data-move="0,1" aria-label="{{ texts.index.move_down }}">↓</button>
+        <button type="button" data-move="1,0" aria-label="{{ texts.index.move_right }}">→</button>
       </div>
-      <div id="message" class="message">Enter para iniciar. Guía siempre a la rana con flechas, WASD, swipe o botones.</div>
+      <div id="message" class="message">{{ texts.index.initial_message }}</div>
     </section>
   </main>
   <dialog id="setupDialog" class="setup-dialog" aria-labelledby="setupTitle">
     <form method="dialog">
-      <button class="dialog-close" value="close" aria-label="Cerrar configuración">×</button>
-      <p class="eyebrow">Prepará tu salto</p>
-      <h2 id="setupTitle">Elegí dificultad, especie y escenario</h2>
+      <button class="dialog-close" value="close" aria-label="{{ texts.index.close_setup }}">×</button>
+      <p class="eyebrow">{{ texts.index.setup_eyebrow }}</p>
+      <h2 id="setupTitle">{{ texts.index.setup_title }}</h2>
       <div class="setup-grid">
-        <label>Dificultad<select id="difficulty" aria-label="Dificultad"><option value="easy">Fácil</option><option value="medium" selected>Media</option><option value="hard">Difícil</option></select></label>
-        <label>Especie<select id="frogSpecies" aria-label="Especie de rana"><option value="greenTree" selected>Rana verde arbórea</option><option value="redEye">Rana de ojos rojos</option><option value="poisonDart">Rana dardo venenosa</option><option value="tomato">Rana tomate</option><option value="glass">Rana de cristal</option></select></label>
-        <label>Escenario<select id="scenario" aria-label="Escenario"><option value="city">Ciudad</option><option value="forest">Bosque</option><option value="snow">Nieve</option><option value="desert">Desierto</option><option value="mixed" selected>Ruta, lago y bosque</option></select></label>
+        <label>{{ texts.index.difficulty }}<select id="difficulty" aria-label="{{ texts.index.difficulty }}"><option value="easy">{{ texts.index.easy }}</option><option value="medium" selected>{{ texts.index.medium }}</option><option value="hard">{{ texts.index.hard }}</option></select></label>
+        <label>{{ texts.index.species }}<select id="frogSpecies" aria-label="{{ texts.index.species_aria }}"><option value="greenTree" selected>{{ texts.index.green_tree }}</option><option value="redEye">{{ texts.index.red_eye }}</option><option value="poisonDart">{{ texts.index.poison_dart }}</option><option value="tomato">{{ texts.index.tomato }}</option><option value="glass">{{ texts.index.glass }}</option></select></label>
+        <label>{{ texts.index.scenario }}<select id="scenario" aria-label="{{ texts.index.scenario }}"><option value="city">{{ texts.index.city }}</option><option value="forest">{{ texts.index.forest }}</option><option value="snow">{{ texts.index.snow }}</option><option value="desert">{{ texts.index.desert }}</option><option value="mixed" selected>{{ texts.index.mixed }}</option></select></label>
       </div>
-      <div class="frog-preview-card" aria-hidden="true"><canvas id="frogPreview" width="144" height="144"></canvas><p id="frogSpeciesInfo">Verde suave, vientre crema y ojos dorados.</p></div>
-      <button id="confirmStart" class="primary-action" value="start" type="submit">Comenzar partida</button>
+      <div class="frog-preview-card" aria-hidden="true"><canvas id="frogPreview" width="144" height="144"></canvas><p id="frogSpeciesInfo">{{ texts.index.frog_info }}</p></div>
+      <button id="confirmStart" class="primary-action" value="start" type="submit">{{ texts.index.confirm_start }}</button>
     </form>
   </dialog>
   <dialog id="guideDialog" class="guide-dialog" aria-labelledby="guideTitle">
     <form method="dialog">
-      <button class="dialog-close" value="close" aria-label="Cerrar guía">×</button>
-      <h2 id="guideTitle">Guía rápida</h2>
-      <ul>
-        <li>Usá flechas, WASD, swipe o botones táctiles para moverte.</li>
-        <li>Cruzá caminos y arroyos hasta ocupar las hojas iluminadas.</li>
-        <li>Recolectá bonus para sumar puntos, tiempo o protección.</li>
-      </ul>
+      <button class="dialog-close" value="close" aria-label="{{ texts.index.close_guide }}">×</button>
+      <h2 id="guideTitle">{{ texts.index.guide_title }}</h2>
+      <ul>{% for item in texts.index.guide_items %}<li>{{ item }}</li>{% endfor %}</ul>
     </form>
   </dialog>
-  <footer class="site-footer">© 2026 Todos los derechos reservados • Built with Python &amp; Django • UX/UI Interface • Deployed on Render ®</footer>
+  <footer class="site-footer">{{ texts.app.footer }}</footer>
   <script src="{% static 'js/game.js' %}" defer></script>
 </body>
 </html>
