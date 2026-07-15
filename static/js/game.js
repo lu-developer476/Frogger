@@ -17,7 +17,6 @@
     setupDialog: document.querySelector('#setupDialog'),
     confirmStart: document.querySelector('#confirmStart'),
     frogSpecies: document.querySelector('#frogSpecies'),
-    frogSize: document.querySelector('#frogSize'),
     frogPreview: document.querySelector('#frogPreview'),
     frogSpeciesInfo: document.querySelector('#frogSpeciesInfo'),
     scenario: document.querySelector('#scenario'),
@@ -42,8 +41,6 @@
     tomato: { name: 'Rana tomate', body: '#f97316', belly: '#fed7aa', eye: '#7c2d12', pupil: '#111827', spot: '#c2410c', pattern: 'stripe', info: 'Naranja rojizo y vientre cálido inspirado en la rana tomate.' },
     glass: { name: 'Rana de cristal', body: 'rgba(134,239,172,.82)', belly: 'rgba(240,253,244,.72)', eye: '#d9f99d', pupil: '#14532d', spot: '#22c55e', pattern: 'translucent', info: 'Verde translúcido y vientre pálido como las ranas de cristal.' },
   };
-  const frogSizeMap = { small: 32, medium: 38, large: 44 };
-
   const scenarioPalettes = {
     city: {
       name: 'Ciudad',
@@ -118,10 +115,7 @@
     scorpion: { body: '#451a03', belly: '#92400e', eye: '#fef3c7', pupil: '#111827', spot: '#1c1917', accent: '#f59e0b', shape: 'scorpion' },
     coyote: { body: '#d97706', belly: '#fed7aa', eye: '#fef3c7', pupil: '#111827', spot: '#78350f', accent: '#fbbf24', shape: 'canid' },
   };
-  const frogConfig = () => ({
-    ...(frogProfiles[ui.frogSpecies?.value] || frogProfiles.greenTree),
-    size: frogSizeMap[ui.frogSize?.value] || frogSizeMap.medium,
-  });
+  const frogConfig = () => frogProfiles[ui.frogSpecies?.value] || frogProfiles.greenTree;
 
   const scenarioLanes = {
     city: [
@@ -212,7 +206,7 @@
   };
 
   const resetFrog = () => {
-    state.frog = { col: 4, row: 8, x: safeX(4), y: safeY(8), size: frogConfig().size, shield: 0 };
+    state.frog = { col: 4, row: 8, x: safeX(4), y: safeY(8), size: 38, shield: 0 };
   };
 
   const freshState = () => {
@@ -642,7 +636,6 @@
     previewCtx.fillRect(0, 0, ui.frogPreview.width, ui.frogPreview.height);
     renderFrog(previewCtx, 43, 38, 58, 0, profile);
     if (ui.frogSpeciesInfo) ui.frogSpeciesInfo.textContent = profile.info;
-    if (state?.frog) state.frog.size = profile.size;
     if (state && !state.running) draw();
   };
 
@@ -676,7 +669,6 @@
   ui.confirmStart?.addEventListener('click', start);
   ui.difficulty?.addEventListener('change', drawFrogPreview);
   ui.frogSpecies?.addEventListener('change', drawFrogPreview);
-  ui.frogSize?.addEventListener('change', drawFrogPreview);
   ui.scenario?.addEventListener('change', () => { if (state) state.status = scenarioConfig().message; draw(); });
   ui.guide?.addEventListener('click', () => {
     if (typeof ui.guideDialog?.showModal === 'function') ui.guideDialog.showModal();
