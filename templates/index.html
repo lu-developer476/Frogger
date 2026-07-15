@@ -14,6 +14,7 @@
     <section class="top-bar" aria-label="Opciones del juego">
       <div class="brand-lockup" aria-label="Identidad del juego"><span class="brand-icon">🐸</span><span><strong>Frogger Rally</strong><small>La rana del bosque</small></span></div>
       <nav class="nav-links" aria-label="Secciones de Frogger Rally"><a href="{% url 'ranking' %}">Ranking</a><button id="guideButton" class="nav-button" type="button">Guía</button></nav>
+      <label class="theme-control" for="visualTheme"><span>Tema visual</span><select id="visualTheme" aria-label="Tema visual"><option value="quest" selected>Quest</option><option value="nocturne">Nocturno</option><option value="sunset">Atardecer</option></select></label>
       <div class="play-control" aria-label="Iniciar juego y configurar partida">
         <button id="startButton" type="button">Jugar ahora</button>
       </div>
