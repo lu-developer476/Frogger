@@ -32,9 +32,9 @@
     ArrowLeft: [-1, 0], a: [-1, 0], A: [-1, 0], ArrowRight: [1, 0], d: [1, 0], D: [1, 0],
   };
   const difficultyMap = {
-    easy: { speed: 0.75, lives: 5, traffic: 0.82, time: 55, bonus: 1 },
-    medium: { speed: 1, lives: 3, traffic: 1, time: 45, bonus: 1.2 },
-    hard: { speed: 1.35, lives: 3, traffic: 1.25, time: 38, bonus: 1.5 },
+    easy: { speed: 0.75, lives: 5, traffic: 0.82, time: 55, bonus: 1, spawn: { vehicle: 0.68, predator: 0.62, log: 1 } },
+    medium: { speed: 1, lives: 3, traffic: 1, time: 45, bonus: 1.2, spawn: { vehicle: 1, predator: 1, log: 1 } },
+    hard: { speed: 1.35, lives: 3, traffic: 1.25, time: 38, bonus: 1.5, spawn: { vehicle: 1.35, predator: 1.5, log: 1.12 } },
   };
   const frogProfiles = {
     greenTree: { name: 'Rana verde arbórea', body: '#76d66b', belly: '#ffe5a3', eye: '#f6d35b', pupil: '#111827', spot: '#3f9f45', pattern: 'soft', info: 'Verde suave, vientre crema y ojos dorados como la rana de la captura.' },
@@ -175,7 +175,7 @@
       { row: 3, type: 'log', kind: 'ice', label: 'TÉMPANO', color: '#e0f2fe', speed: 2.25, size: 1.45, gaps: [0, 4, 8] },
       { row: 3, type: 'predator', kind: 'fish', label: 'PEZ', color: '#38bdf8', speed: 2.75, size: 0.8, gaps: [2, 7] },
       { row: 1, type: 'log', kind: 'ice', label: 'TÉMPANO', color: '#bfdbfe', speed: -2.7, size: 1.8, gaps: [1, 6] },
-      { row: 1, type: 'predator', kind: 'owl', label: 'BÚHO', color: '#f8fafc', speed: -3.05, size: 0.78, gaps: [4, 9] },
+      { row: 1, type: 'predator', kind: 'fish', label: 'PEZ', color: '#38bdf8', speed: -3.05, size: 0.78, gaps: [4, 9] },
     ],
     desert: [
       { row: 7, type: 'predator', kind: 'snake', label: 'SERPIENTE', color: '#a3e635', speed: 2.85, size: 0.9, gaps: [0, 5] },
@@ -190,7 +190,6 @@
       { row: 7, type: 'vehicle', kind: 'taxi', label: 'TAXI', color: '#facc15', speed: 2.4, size: 1.1, gaps: [0, 4, 8] },
       { row: 7, type: 'vehicle', kind: 'motorcycle', label: 'MOTO', color: '#38bdf8', speed: 3.3, size: 0.62, gaps: [2, 6] },
       { row: 6, type: 'vehicle', kind: 'truck', label: 'CAMIÓN', color: '#ef4444', speed: -2.55, size: 1.7, gaps: [1, 6] },
-      { row: 6, type: 'predator', kind: 'snake', label: 'SERPIENTE', color: '#84cc16', speed: -3.15, size: 0.92, gaps: [4, 9] },
       { row: 5, type: 'vehicle', kind: 'van', label: 'FURGÓN', color: '#f97316', speed: 2.95, size: 1.35, gaps: [0, 5] },
       { row: 5, type: 'vehicle', kind: 'pickup', label: 'PICKUP', color: '#a78bfa', speed: 3.45, size: 1.05, gaps: [3, 8] },
       { row: 4, type: 'predator', kind: 'heron', label: 'GARZA', color: '#e5e7eb', speed: -2.25, size: 0.92, gaps: [0, 4, 8] },
@@ -199,12 +198,26 @@
       { row: 2, type: 'log', kind: 'log', label: 'TRONCO', color: '#92400e', speed: 2.5, size: 1.6, gaps: [2, 7] },
       { row: 2, type: 'predator', kind: 'fish', label: 'PEZ', color: '#fb7185', speed: 3.05, size: 0.82, gaps: [0, 5] },
       { row: 1, type: 'log', kind: 'log', label: 'TRONCO', color: '#b45309', speed: -3, size: 2.1, gaps: [1, 6] },
-      { row: 1, type: 'predator', kind: 'owl', label: 'BÚHO', color: '#c084fc', speed: -3.35, size: 0.78, gaps: [4, 9] },
+      { row: 1, type: 'predator', kind: 'fish', label: 'PEZ', color: '#38bdf8', speed: -3.35, size: 0.78, gaps: [4, 9] },
     ],
   };
   const lanesForScenario = () => scenarioLanes[ui.scenario?.value] || scenarioLanes.mixed;
   const isWaterLane = (row) => scenarioConfig().waterRows.includes(row);
   const isPassiveObstacle = (obstacle) => obstacle.type === 'log';
+  const spawnRateForLane = (lane, settings) => settings.spawn?.[lane.type] || 1;
+  const gapsForDifficulty = (lane, settings) => {
+    const rate = spawnRateForLane(lane, settings);
+    const target = Math.max(1, Math.round(lane.gaps.length * rate));
+    const baseGaps = target < lane.gaps.length ? lane.gaps.slice(0, target) : [...lane.gaps];
+
+    while (baseGaps.length < target) {
+      const sourceGap = lane.gaps[baseGaps.length % lane.gaps.length];
+      const offset = 1.5 + Math.floor(baseGaps.length / lane.gaps.length);
+      baseGaps.push((sourceGap + offset) % cols);
+    }
+
+    return baseGaps;
+  };
 
   const goalColumns = [1, 3, 5, 7, 9];
   let state;
@@ -230,7 +243,7 @@
   const buildObstacles = (level) => {
     const d = difficulty();
     const boost = 1 + Math.min(level - 1, 12) * 0.055;
-    return lanesForScenario().flatMap((lane) => lane.gaps.map((gap, index) => ({
+    return lanesForScenario().flatMap((lane) => gapsForDifficulty(lane, d).map((gap, index) => ({
       ...lane,
       x: (gap * tile + index * 18) % (canvas.width + tile),
       y: lane.row * tile + 14,
