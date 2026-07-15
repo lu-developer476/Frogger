@@ -21,6 +21,7 @@
     frogSpeciesInfo: document.querySelector('#frogSpeciesInfo'),
     scenario: document.querySelector('#scenario'),
     visualTheme: document.querySelector('#visualTheme'),
+    visualMode: document.querySelector('#visualMode'),
   };
 
   const tile = 72;
@@ -106,6 +107,30 @@
   };
   const scenarioConfig = () => scenarioPalettes[ui.scenario?.value] || scenarioPalettes.mixed;
   const visualThemes = ['quest', 'nocturne', 'sunset'];
+  const visualModes = ['illustrated', 'emoji'];
+  const applyVisualMode = (mode) => {
+    const selected = visualModes.includes(mode) ? mode : 'illustrated';
+    if (ui.visualMode) ui.visualMode.value = selected;
+    localStorage.setItem('froggerVisualMode', selected);
+    drawFrogPreview();
+    if (state) draw();
+  };
+  const isEmojiMode = () => (ui.visualMode?.value || 'illustrated') === 'emoji';
+  const emojiProfiles = {
+    frog: '🐸',
+    vehicle: { taxi: '🚕', motorcycle: '🏍️', bus: '🚌', truck: '🚚', van: '🚐', pickup: '🛻', snowplow: '🚜' },
+    predator: { snake: '🐍', heron: '🪿', otter: '🦦', fish: '🐟', owl: '🦉', vulture: '🦅', scorpion: '🦂', coyote: '🐺' },
+    log: { log: '🪵', branch: '🪵', ice: '🧊', tumbleweed: '🌾', cactus: '🌵', rock: '🪨', box: '📦' },
+    bonus: { clock: '⏱️', fly: '🪰' },
+  };
+  const drawCenteredEmoji = (targetCtx, emoji, x, y, size) => {
+    targetCtx.save();
+    targetCtx.font = `${size}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", system-ui, sans-serif`;
+    targetCtx.textAlign = 'center';
+    targetCtx.textBaseline = 'middle';
+    targetCtx.fillText(emoji, x, y);
+    targetCtx.restore();
+  };
   const applyVisualTheme = (theme) => {
     const selected = visualThemes.includes(theme) ? theme : 'quest';
     document.body.dataset.theme = selected;
@@ -138,18 +163,18 @@
     forest: [
       { row: 7, type: 'predator', kind: 'snake', label: 'SERPIENTE', color: '#84cc16', speed: 2.4, size: 0.95, gaps: [0, 4, 8] },
       { row: 6, type: 'predator', kind: 'owl', label: 'BÚHO', color: '#c084fc', speed: -2.65, size: 0.82, gaps: [2, 6] },
-      { row: 5, type: 'log', kind: 'branch', color: '#854d0e', speed: 2.05, size: 1.35, gaps: [1, 6] },
+      { row: 5, type: 'log', kind: 'branch', label: 'TRONCO', color: '#854d0e', speed: 2.05, size: 1.35, gaps: [1, 6] },
       { row: 4, type: 'predator', kind: 'heron', label: 'GARZA', color: '#e5e7eb', speed: -2.15, size: 0.9, gaps: [0, 5] },
       { row: 3, type: 'predator', kind: 'otter', label: 'NUTRIA', color: '#78350f', speed: 2.7, size: 0.88, gaps: [3, 8] },
-      { row: 2, type: 'log', kind: 'branch', color: '#a16207', speed: -2.35, size: 1.2, gaps: [0, 5] },
+      { row: 2, type: 'log', kind: 'branch', label: 'TRONCO', color: '#a16207', speed: -2.35, size: 1.2, gaps: [0, 5] },
       { row: 1, type: 'predator', kind: 'snake', label: 'VÍBORA', color: '#65a30d', speed: 3, size: 0.86, gaps: [2, 7] },
     ],
     snow: [
       { row: 7, type: 'vehicle', kind: 'snowplow', label: 'QUITA', color: '#f97316', speed: 2.15, size: 1.55, gaps: [0, 5] },
       { row: 5, type: 'vehicle', kind: 'truck', label: 'CAMIÓN', color: '#64748b', speed: -2.35, size: 1.65, gaps: [2, 7] },
-      { row: 3, type: 'log', kind: 'ice', color: '#e0f2fe', speed: 2.25, size: 1.45, gaps: [0, 4, 8] },
+      { row: 3, type: 'log', kind: 'ice', label: 'TÉMPANO', color: '#e0f2fe', speed: 2.25, size: 1.45, gaps: [0, 4, 8] },
       { row: 3, type: 'predator', kind: 'fish', label: 'PEZ', color: '#38bdf8', speed: 2.75, size: 0.8, gaps: [2, 7] },
-      { row: 1, type: 'log', kind: 'ice', color: '#bfdbfe', speed: -2.7, size: 1.8, gaps: [1, 6] },
+      { row: 1, type: 'log', kind: 'ice', label: 'TÉMPANO', color: '#bfdbfe', speed: -2.7, size: 1.8, gaps: [1, 6] },
       { row: 1, type: 'predator', kind: 'owl', label: 'BÚHO', color: '#f8fafc', speed: -3.05, size: 0.78, gaps: [4, 9] },
     ],
     desert: [
@@ -157,9 +182,9 @@
       { row: 6, type: 'predator', kind: 'vulture', label: 'BUITRE', color: '#92400e', speed: -3.15, size: 0.82, gaps: [2, 7] },
       { row: 5, type: 'vehicle', kind: 'pickup', label: '4X4', color: '#f97316', speed: 2.55, size: 1.25, gaps: [1, 6] },
       { row: 4, type: 'predator', kind: 'scorpion', label: 'ESCORPIÓN', color: '#451a03', speed: -2.45, size: 0.78, gaps: [0, 4, 8] },
-      { row: 3, type: 'log', kind: 'tumbleweed', color: '#facc15', speed: 2.95, size: 0.85, gaps: [3, 8] },
+      { row: 3, type: 'log', kind: 'tumbleweed', label: 'MATORRAL', color: '#facc15', speed: 2.95, size: 0.85, gaps: [3, 8] },
       { row: 2, type: 'predator', kind: 'coyote', label: 'COYOTE', color: '#d97706', speed: -2.75, size: 0.88, gaps: [1, 6] },
-      { row: 1, type: 'log', kind: 'cactus', color: '#65a30d', speed: 2.1, size: 1.15, gaps: [0, 5] },
+      { row: 1, type: 'log', kind: 'cactus', label: 'CACTUS', color: '#65a30d', speed: 2.1, size: 1.15, gaps: [0, 5] },
     ],
     mixed: [
       { row: 7, type: 'vehicle', kind: 'taxi', label: 'TAXI', color: '#facc15', speed: 2.4, size: 1.1, gaps: [0, 4, 8] },
@@ -169,15 +194,17 @@
       { row: 5, type: 'vehicle', kind: 'van', label: 'FURGÓN', color: '#f97316', speed: 2.95, size: 1.35, gaps: [0, 5] },
       { row: 5, type: 'vehicle', kind: 'pickup', label: 'PICKUP', color: '#a78bfa', speed: 3.45, size: 1.05, gaps: [3, 8] },
       { row: 4, type: 'predator', kind: 'heron', label: 'GARZA', color: '#e5e7eb', speed: -2.25, size: 0.92, gaps: [0, 4, 8] },
-      { row: 3, type: 'log', kind: 'log', color: '#a16207', speed: -2, size: 1.9, gaps: [0, 5] },
+      { row: 3, type: 'log', kind: 'log', label: 'TRONCO', color: '#a16207', speed: -2, size: 1.9, gaps: [0, 5] },
       { row: 3, type: 'predator', kind: 'otter', label: 'NUTRIA', color: '#78350f', speed: -2.75, size: 0.88, gaps: [3, 8] },
-      { row: 2, type: 'log', kind: 'log', color: '#92400e', speed: 2.5, size: 1.6, gaps: [2, 7] },
+      { row: 2, type: 'log', kind: 'log', label: 'TRONCO', color: '#92400e', speed: 2.5, size: 1.6, gaps: [2, 7] },
       { row: 2, type: 'predator', kind: 'fish', label: 'PEZ', color: '#fb7185', speed: 3.05, size: 0.82, gaps: [0, 5] },
-      { row: 1, type: 'log', kind: 'log', color: '#b45309', speed: -3, size: 2.1, gaps: [1, 6] },
+      { row: 1, type: 'log', kind: 'log', label: 'TRONCO', color: '#b45309', speed: -3, size: 2.1, gaps: [1, 6] },
       { row: 1, type: 'predator', kind: 'owl', label: 'BÚHO', color: '#c084fc', speed: -3.35, size: 0.78, gaps: [4, 9] },
     ],
   };
   const lanesForScenario = () => scenarioLanes[ui.scenario?.value] || scenarioLanes.mixed;
+  const isWaterLane = (row) => scenarioConfig().waterRows.includes(row);
+  const isPassiveObstacle = (obstacle) => obstacle.type === 'log';
 
   const goalColumns = [1, 3, 5, 7, 9];
   let state;
@@ -209,7 +236,7 @@
       y: lane.row * tile + 14,
       width: tile * lane.size * (lane.type === 'vehicle' ? d.traffic : 1),
       height: lane.type === 'log' ? 44 : lane.type === 'predator' ? 38 : 42,
-      speed: lane.speed * d.speed * boost,
+      speed: isPassiveObstacle(lane) && !isWaterLane(lane.row) ? 0 : lane.speed * d.speed * boost,
     })));
   };
 
@@ -288,6 +315,16 @@
   };
 
   const drawObstacle = (obstacle) => {
+    if (isEmojiMode()) {
+      const emoji = emojiProfiles[obstacle.type]?.[obstacle.kind] || (obstacle.type === 'vehicle' ? '🚗' : obstacle.type === 'predator' ? '🐾' : '📦');
+      const size = obstacle.type === 'vehicle' ? Math.min(46, Math.max(30, obstacle.height + 6)) : obstacle.type === 'predator' ? 38 : 40;
+      const count = obstacle.type === 'vehicle' || obstacle.type === 'log' ? Math.max(1, Math.round(obstacle.width / tile)) : 1;
+      for (let i = 0; i < count; i += 1) {
+        const segmentX = obstacle.x + ((i + 0.5) * obstacle.width) / count;
+        drawCenteredEmoji(ctx, emoji, segmentX, obstacle.y + obstacle.height / 2 + 1, size);
+      }
+      return;
+    }
     ctx.fillStyle = obstacle.color;
     roundRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height, obstacle.type === 'predator' ? 20 : 12);
     ctx.fill();
@@ -322,6 +359,10 @@
     if (!state.bonus || state.bonus.collected) return;
     const x = state.bonus.col * tile + 36;
     const y = state.bonus.row * tile + 36;
+    if (isEmojiMode()) {
+      drawCenteredEmoji(ctx, emojiProfiles.bonus[state.bonus.type], x, y, 32);
+      return;
+    }
     ctx.fillStyle = state.bonus.type === 'clock' ? '#93c5fd' : '#fde68a';
     ctx.beginPath();
     ctx.arc(x, y, 15 + Math.sin(Date.now() / 140) * 2, 0, Math.PI * 2);
@@ -488,6 +529,17 @@
 
   const drawFrog = () => {
     const { x, y, size, shield } = state.frog;
+    if (isEmojiMode()) {
+      if (shield > 0) {
+        ctx.strokeStyle = 'rgba(147,197,253,.9)';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(x + size / 2, y + size / 2, size * 0.75, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      drawCenteredEmoji(ctx, emojiProfiles.frog, x + size / 2, y + size / 2 + 1, 40);
+      return;
+    }
     renderFrog(ctx, x, y, size, shield);
   };
 
@@ -586,9 +638,13 @@
         if (o.type === 'vehicle') loseLife(`¡Te atropelló un/a ${o.label.toLowerCase()}!`);
         if (o.type === 'predator') loseLife(`¡Un depredador natural (${o.label.toLowerCase()}) atrapó a la rana!`);
         if (o.type === 'log') {
-          onLog = true;
-          state.frog.x += o.speed * delta;
-          state.frog.col = Math.round((state.frog.x - 18) / tile);
+          if (isWaterLane(o.row)) {
+            onLog = true;
+            state.frog.x += o.speed * delta;
+            state.frog.col = Math.round((state.frog.x - 18) / tile);
+          } else {
+            loseLife(`Chocaste con un obstáculo fijo (${(o.label || 'obstáculo').toLowerCase()}).`);
+          }
         }
       }
     });
@@ -642,7 +698,8 @@
     previewCtx.clearRect(0, 0, ui.frogPreview.width, ui.frogPreview.height);
     previewCtx.fillStyle = '#e8f5d9';
     previewCtx.fillRect(0, 0, ui.frogPreview.width, ui.frogPreview.height);
-    renderFrog(previewCtx, 43, 38, 58, 0, profile);
+    if (isEmojiMode()) drawCenteredEmoji(previewCtx, emojiProfiles.frog, 72, 72, 66);
+    else renderFrog(previewCtx, 43, 38, 58, 0, profile);
     if (ui.frogSpeciesInfo) ui.frogSpeciesInfo.textContent = profile.info;
     if (state && !state.running) draw();
   };
@@ -679,10 +736,12 @@
   ui.frogSpecies?.addEventListener('change', drawFrogPreview);
   ui.scenario?.addEventListener('change', () => { if (state) state.status = scenarioConfig().message; draw(); });
   ui.visualTheme?.addEventListener('change', () => applyVisualTheme(ui.visualTheme.value));
+  ui.visualMode?.addEventListener('change', () => applyVisualMode(ui.visualMode.value));
   ui.guide?.addEventListener('click', () => {
     if (typeof ui.guideDialog?.showModal === 'function') ui.guideDialog.showModal();
   });
   applyVisualTheme(localStorage.getItem('froggerVisualTheme') || ui.visualTheme?.value);
+  applyVisualMode(localStorage.getItem('froggerVisualMode') || ui.visualMode?.value);
   ui.best.textContent = localStorage.getItem('froggerBest') || '0';
   state = freshState();
   state.running = false;
