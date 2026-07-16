@@ -23,7 +23,84 @@
     visualTheme: document.querySelector('#visualTheme'),
     visualMode: document.querySelector('#visualMode'),
     visualSettings: document.querySelector('.visual-settings'),
+    soundToggle: document.querySelector('#soundToggle'),
   };
+
+
+  // Motor de efectos: capas tonales y de ruido breves, diseñadas para mantener claridad
+  // en un arcade rápido sin cargar muestras externas ni bloquear la primera interacción.
+  const sound = (() => {
+    let context;
+    let master;
+    let noiseBuffer;
+    let enabled = localStorage.getItem('froggerSound') !== 'off';
+
+    const boot = () => {
+      if (!context) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return false;
+        context = new AudioContext();
+        master = context.createGain();
+        master.gain.value = 0.32;
+        master.connect(context.destination);
+        noiseBuffer = context.createBuffer(1, context.sampleRate * 0.25, context.sampleRate);
+        const samples = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < samples.length; i += 1) samples[i] = Math.random() * 2 - 1;
+      }
+      if (context.state === 'suspended') context.resume();
+      return true;
+    };
+
+    const tone = (frequency, duration, { type = 'sine', volume = 0.12, endFrequency = frequency, delay = 0 } = {}) => {
+      if (!enabled || !boot()) return;
+      const start = context.currentTime + delay;
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, start);
+      oscillator.frequency.exponentialRampToValueAtTime(Math.max(1, endFrequency), start + duration);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + Math.min(0.018, duration / 4));
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      oscillator.connect(gain).connect(master);
+      oscillator.start(start);
+      oscillator.stop(start + duration + 0.03);
+    };
+
+    const noise = (duration, { volume = 0.06, cutoff = 1200, delay = 0 } = {}) => {
+      if (!enabled || !boot()) return;
+      const start = context.currentTime + delay;
+      const source = context.createBufferSource();
+      const filter = context.createBiquadFilter();
+      const gain = context.createGain();
+      source.buffer = noiseBuffer;
+      filter.type = 'bandpass';
+      filter.frequency.value = cutoff;
+      filter.Q.value = 0.8;
+      gain.gain.setValueAtTime(volume, start);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      source.connect(filter).connect(gain).connect(master);
+      source.start(start);
+      source.stop(start + duration + 0.03);
+    };
+
+    const effects = {
+      hop: () => { tone(215, 0.09, { type: 'triangle', volume: 0.09, endFrequency: 315 }); tone(430, 0.055, { volume: 0.035, delay: 0.035 }); },
+      hit: () => { noise(0.15, { volume: 0.12, cutoff: 420 }); tone(150, 0.2, { type: 'sawtooth', volume: 0.1, endFrequency: 58 }); },
+      shield: () => { tone(520, 0.11, { volume: 0.09, endFrequency: 820 }); tone(780, 0.18, { volume: 0.06, endFrequency: 1100, delay: 0.06 }); },
+      goal: () => { [523, 659, 784].forEach((note, index) => tone(note, 0.24, { type: 'triangle', volume: 0.07, delay: index * 0.075 })); },
+      bonus: () => { tone(880, 0.11, { volume: 0.07, endFrequency: 1320 }); tone(1320, 0.2, { volume: 0.055, endFrequency: 1760, delay: 0.07 }); },
+      level: () => { [392, 494, 587, 784].forEach((note, index) => tone(note, 0.28, { type: 'triangle', volume: 0.06, delay: index * 0.09 })); },
+      gameOver: () => { tone(330, 0.22, { type: 'sawtooth', volume: 0.08, endFrequency: 220 }); tone(220, 0.45, { type: 'triangle', volume: 0.07, endFrequency: 82, delay: 0.12 }); },
+    };
+
+    return {
+      ...effects,
+      unlock: boot,
+      toggle: () => { enabled = !enabled; localStorage.setItem('froggerSound', enabled ? 'on' : 'off'); if (enabled) { boot(); effects.hop(); } return enabled; },
+      isEnabled: () => enabled,
+    };
+  })();
 
 
   const TEXTS = {
@@ -616,6 +693,7 @@
     state.frog.row = clamp(state.frog.row + dy, 0, rows - 1);
     state.frog.x = safeX(state.frog.col);
     state.frog.y = safeY(state.frog.row);
+    sound.hop();
   };
 
   const loseLife = (reason) => {
@@ -623,6 +701,7 @@
     if (state.frog.shield > 0) {
       state.frog.shield = 0;
       state.status = TEXTS.shield(reason);
+      sound.shield();
       if (resetTimer) state.timeLeft = difficulty().time;
       resetFrog();
       return;
@@ -632,9 +711,11 @@
     state.status = reason;
     if (resetTimer) state.timeLeft = difficulty().time;
     addParticles(state.frog.x + 18, state.frog.y + 18, '#ef4444', 16);
+    sound.hit();
     if (state.lives <= 0) {
       state.running = false;
       state.status = TEXTS.gameOver(state.score);
+      sound.gameOver();
     }
     resetFrog();
   };
@@ -647,6 +728,7 @@
     state.obstacles = buildObstacles(state.level);
     state.bonus = spawnBonus();
     state.status = TEXTS.boardComplete(scenarioConfig().name);
+    sound.level();
   };
 
   const completeGoal = () => {
@@ -660,6 +742,7 @@
     state.score += Math.round((100 + state.level * 25 + state.timeLeft * 3 + state.streak * 20) * difficulty().bonus);
     addParticles(nearestGoal * tile + 36, 36, '#4ade80', 22);
     state.status = TEXTS.goalSecured(state.streak);
+    sound.goal();
     resetFrog();
     if (state.goals.size === goalColumns.length) completeBoard();
   };
@@ -676,6 +759,7 @@
       state.status = TEXTS.flyBonus;
     }
     addParticles(state.frog.x + 18, state.frog.y + 18, '#fde68a', 18);
+    sound.bonus();
   };
 
   const updateParticles = () => {
@@ -742,6 +826,7 @@
   };
 
   const start = () => {
+    sound.unlock();
     cancelAnimationFrame(animationFrame);
     state = freshState();
     loop(0);
@@ -793,11 +878,23 @@
   ui.scenario?.addEventListener('change', () => { if (state) state.status = scenarioConfig().message; draw(); });
   ui.visualTheme?.addEventListener('change', () => applyVisualTheme(ui.visualTheme.value));
   ui.visualMode?.addEventListener('change', () => applyVisualMode(ui.visualMode.value));
+  ui.soundToggle?.addEventListener('click', () => {
+    const enabled = sound.toggle();
+    ui.soundToggle.setAttribute('aria-pressed', String(enabled));
+    ui.soundToggle.querySelector('span:last-child').textContent = enabled ? ui.soundToggle.dataset.soundOn : ui.soundToggle.dataset.soundOff;
+    ui.soundToggle.querySelector('span:first-child').textContent = enabled ? '🔊' : '🔇';
+  });
   ui.guide?.addEventListener('click', () => {
     if (typeof ui.guideDialog?.showModal === 'function') ui.guideDialog.showModal();
   });
   applyVisualTheme(localStorage.getItem('froggerVisualTheme') || ui.visualTheme?.value);
   applyVisualMode(localStorage.getItem('froggerVisualMode') || ui.visualMode?.value);
+  if (ui.soundToggle) {
+    const enabled = sound.isEnabled();
+    ui.soundToggle.setAttribute('aria-pressed', String(enabled));
+    ui.soundToggle.querySelector('span:last-child').textContent = enabled ? ui.soundToggle.dataset.soundOn : ui.soundToggle.dataset.soundOff;
+    ui.soundToggle.querySelector('span:first-child').textContent = enabled ? '🔊' : '🔇';
+  }
   ui.best.textContent = localStorage.getItem('froggerBest') || '0';
   state = freshState();
   state.running = false;

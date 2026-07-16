@@ -15,7 +15,7 @@ Juego web estilo Frogger construido con **Django 5**, **JavaScript Canvas** y co
 
 El proyecto está en una versión funcional y desplegable. Incluye una aplicación Django mínima que sirve el juego desde la ruta principal, expone un endpoint de salud en `/health/`, administra archivos estáticos con WhiteNoise y mantiene una configuración de producción parametrizable por variables de entorno.
 
-La experiencia jugable ya está implementada en el frontend: tablero Canvas de 10x10, tráfico, río, troncos, depredadores, cinco metas, niveles progresivos, selección de dificultad, puntaje, vidas, temporizador, rachas, bonus, escudos, partículas y mejor puntaje guardado en `localStorage`.
+La experiencia jugable ya está implementada en el frontend: tablero Canvas de 10x10, tráfico, río, troncos, depredadores, cinco metas, niveles progresivos, selección de dificultad, puntaje, vidas, temporizador, rachas, bonus, escudos, partículas, efectos sonoros arcade adaptativos y mejor puntaje guardado en `localStorage`.
 
 ## Stack tecnológico
 
@@ -35,6 +35,7 @@ La experiencia jugable ya está implementada en el frontend: tablero Canvas de 1
 - Dificultades **Fácil**, **Media** y **Difícil**, con ajustes de velocidad, vidas, tráfico, tiempo y multiplicador de bonus.
 - Controles con flechas, WASD, Enter, botones táctiles y gestos de swipe.
 - UI responsive con HUD, mensajes de estado y mejor puntaje persistido en `localStorage`.
+- Efectos sonoros sintetizados con Web Audio para cada salto, objetivo, bonus, impacto y final de partida; incluyen control de silencio persistente y se activan tras la interacción del jugador.
 - Configuración de producción con Gunicorn, WhiteNoise, HTTPS opcional, HSTS configurable y variables para Render.
 
 ## Estructura principal

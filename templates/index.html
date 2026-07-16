@@ -19,6 +19,7 @@
         <div class="visual-settings-panel">
           <label class="theme-control" for="visualTheme"><span>{{ texts.index.visual_theme }}</span><select id="visualTheme" aria-label="{{ texts.index.visual_theme }}"><option value="quest" selected>{{ texts.index.theme_quest }}</option><option value="nocturne">{{ texts.index.theme_nocturne }}</option><option value="sunset">{{ texts.index.theme_sunset }}</option></select></label>
           <label class="theme-control" for="visualMode"><span>{{ texts.index.visual_mode }}</span><select id="visualMode" aria-label="{{ texts.index.visual_mode }}"><option value="illustrated" selected>{{ texts.index.mode_illustrated }}</option><option value="emoji">{{ texts.index.mode_emoji }}</option></select></label>
+          <button id="soundToggle" class="sound-toggle" type="button" aria-pressed="true" aria-label="{{ texts.index.sound_toggle }}" data-sound-on="{{ texts.index.sound_on }}" data-sound-off="{{ texts.index.sound_off }}"><span aria-hidden="true">🔊</span><span>{{ texts.index.sound_on }}</span></button>
         </div>
       </details>
       <div class="play-control" aria-label="{{ texts.index.play_aria }}">
